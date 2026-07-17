@@ -1,6 +1,7 @@
 import Link from "next/link";
 import PhoneChat from "./PhoneChat";
 import Reveal from "./Reveal";
+import HeroDataViz from "./HeroDataViz";
 
 export default function Hero() {
   return (
@@ -51,6 +52,8 @@ export default function Hero() {
             <PhoneChat />
           </Reveal>
         </div>
+
+        <HeroDataViz />
       </div>
     </section>
   );
