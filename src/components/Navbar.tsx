@@ -6,9 +6,10 @@ import Image from "next/image";
 import { fitur, iconGradient, hoverTint } from "./fiturData";
 
 const navLinks = [
-  { label: "Cara kerja", href: "#cara-kerja" },
-  { label: "Untuk bank", href: "#untuk-bank" },
-  { label: "Tentang", href: "#tentang" },
+  { label: "Cara kerja", href: "/#cara-kerja" },
+  { label: "Data", href: "/data" },
+  { label: "Untuk bank", href: "/data#untuk-bank" },
+  { label: "Tentang", href: "/#tentang" },
 ];
 
 export default function Navbar() {
@@ -108,7 +109,7 @@ export default function Navbar() {
             Masuk
           </Link>
           <Link
-            href="#lapor"
+            href="/#lapor"
             className="rounded-full bg-navy-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-navy-700"
           >
             Lapor sekarang
@@ -130,7 +131,7 @@ export default function Navbar() {
             {fitur.map((item, i) => (
               <Link
                 key={item.title}
-                href="#fitur"
+                href="/#fitur"
                 tabIndex={open ? 0 : -1}
                 onClick={() => setOpen(false)}
                 style={{ transitionDelay: open ? `${i * 45}ms` : "0ms" }}

@@ -1,3 +1,5 @@
+import Reveal from "./Reveal";
+
 const jaminan = [
   {
     title: "Diproses di perangkat",
@@ -18,10 +20,10 @@ const jaminan = [
 
 export default function Privasi() {
   return (
-    <section id="tentang" className="bg-blue-50">
+    <section id="tentang" className="bg-white">
       <div className="mx-auto max-w-6xl px-6 py-20">
         <div className="grid gap-12 lg:grid-cols-2">
-          <div>
+          <Reveal>
             <h2 className="text-3xl font-extrabold tracking-tight text-navy-900 sm:text-4xl">
               Data kamu aman, selalu
             </h2>
@@ -34,17 +36,18 @@ export default function Privasi() {
             <p className="mt-6 font-mono text-sm text-ink-400">
               Survei primer tim NiceShield, 56 responden
             </p>
-          </div>
+          </Reveal>
 
           <div className="space-y-4">
-            {jaminan.map((item) => (
-              <div
-                key={item.title}
-                className="rounded-2xl border border-navy-900/10 bg-white p-6"
-              >
-                <h3 className="font-bold text-navy-900">{item.title}</h3>
-                <p className="mt-2 text-sm text-ink-600">{item.description}</p>
-              </div>
+            {jaminan.map((item, i) => (
+              <Reveal key={item.title} delay={i * 90}>
+                <div className="rounded-2xl border border-navy-900/10 bg-white p-6">
+                  <h3 className="font-bold text-navy-900">{item.title}</h3>
+                  <p className="mt-2 text-sm text-ink-600">
+                    {item.description}
+                  </p>
+                </div>
+              </Reveal>
             ))}
           </div>
         </div>

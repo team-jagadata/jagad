@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { fitur, iconGradient } from "./fiturData";
+import Reveal from "./Reveal";
 
 const stroke = {
   fill: "none",
@@ -264,7 +265,7 @@ const mockups: Record<string, (c: string) => ReactNode> = {
 export default function Fitur() {
   return (
     <section id="fitur" className="mx-auto max-w-6xl px-6 py-20">
-      <div className="mx-auto max-w-2xl text-center">
+      <Reveal className="mx-auto max-w-2xl text-center">
         <span className="font-mono text-xs uppercase tracking-widest text-blue-500">
           Fitur
         </span>
@@ -275,23 +276,24 @@ export default function Fitur() {
           Cek cepat saat curiga, atau lengkapi laporan saat sudah terlanjur.
           Keduanya bermuara pada mesin skor risiko yang sama.
         </p>
-      </div>
+      </Reveal>
 
       <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {fitur.map((item, i) => (
-          <div
-            key={item.title}
-            className="flex flex-col overflow-hidden rounded-2xl border border-navy-50 bg-white p-7"
-          >
-            <span className="inline-flex w-fit rounded-md bg-navy-50 px-2 py-1 font-mono text-xs font-medium text-ink-500">
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            <h3 className="mt-5 text-xl font-bold text-navy-900">
-              {item.title}
-            </h3>
-            <p className="mt-2 text-sm text-ink-600">{item.description}</p>
-            <div className="mt-auto pt-6">{mockups[item.tag]?.(item.color)}</div>
-          </div>
+          <Reveal key={item.title} delay={(i % 3) * 90} className="h-full">
+            <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-navy-50 bg-white p-7">
+              <span className="inline-flex w-fit rounded-md bg-navy-50 px-2 py-1 font-mono text-xs font-medium text-ink-500">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 className="mt-5 text-xl font-bold text-navy-900">
+                {item.title}
+              </h3>
+              <p className="mt-2 text-sm text-ink-600">{item.description}</p>
+              <div className="mt-auto pt-6">
+                {mockups[item.tag]?.(item.color)}
+              </div>
+            </div>
+          </Reveal>
         ))}
       </div>
     </section>

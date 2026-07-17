@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Reveal from "./Reveal";
 
 const statCards = [
   {
@@ -22,7 +23,7 @@ export default function UntukBank() {
     <section id="untuk-bank" className="bg-navy-900">
       <div className="mx-auto max-w-6xl px-6 py-20">
         <div className="grid gap-12 lg:grid-cols-2">
-          <div>
+          <Reveal>
             <span className="font-mono text-xs uppercase tracking-widest text-blue-300">
               Untuk bank &amp; fintech
             </span>
@@ -59,9 +60,9 @@ export default function UntukBank() {
             >
               Ajak diskusi kemitraan
             </Link>
-          </div>
+          </Reveal>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+          <Reveal delay={150} className="rounded-2xl border border-white/10 bg-white/5 p-6">
             <h3 className="font-semibold text-white">Sinyal penipuan terbaru</h3>
             <p className="mt-1 text-sm text-blue-100">
               Contoh tampilan: pola modus teranonimisasi dari laporan pengguna.
@@ -86,7 +87,7 @@ export default function UntukBank() {
                 </li>
               ))}
             </ul>
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>

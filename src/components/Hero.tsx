@@ -1,6 +1,6 @@
 import Link from "next/link";
 import PhoneChat from "./PhoneChat";
-import StatsDiagram from "./StatsDiagram";
+import Reveal from "./Reveal";
 
 export default function Hero() {
   return (
@@ -8,7 +8,7 @@ export default function Hero() {
       <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           {/* Kiri: narasi */}
-          <div>
+          <Reveal>
             <span className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white px-3 py-1 text-sm font-medium text-blue-500">
               Asisten pelaporan penipuan bertenaga AI
             </span>
@@ -44,14 +44,13 @@ export default function Hero() {
               <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
               Bukti sensitif diproses di perangkat
             </p>
-          </div>
+          </Reveal>
 
           {/* Kanan: mockup HP chat asisten */}
-          <PhoneChat />
+          <Reveal delay={150}>
+            <PhoneChat />
+          </Reveal>
         </div>
-
-        {/* Diagram naratif dari 3 angka statistik */}
-        <StatsDiagram />
       </div>
     </section>
   );
