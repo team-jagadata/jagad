@@ -41,14 +41,11 @@ export default function HeroDataViz() {
           </h3>
           <p className="mt-1 text-sm text-ink-600">
             Kerugian penipuan nasional hampir 4&times; APBD Provinsi Kalimantan
-            Selatan.
+            Utara.
           </p>
-          <div className="mt-8">
+          <div className="mt-6">
             <LossVsBudgetBar />
           </div>
-          <p className="mt-6 text-[11px] text-ink-400">
-            Sumber: IASC (Nov 2025) &middot; Pemprov Kalsel
-          </p>
         </div>
       </div>
     </Reveal>

@@ -3,6 +3,7 @@
 import {
   Bar,
   BarChart,
+  CartesianGrid,
   Cell,
   LabelList,
   ResponsiveContainer,
@@ -29,16 +30,20 @@ const DATA: Batang[] = [
     color: "#f43f5e", // merah muda — menonjolkan urgensi
   },
   {
-    name: "APBD 2026 Prov. Kalsel",
+    name: "APBD 2026 Prov. Kaltara",
     value: 2.3,
-    source: "Pemprov Kalsel",
+    source: "Pemprov Kaltara",
     color: "#f59e0b", // kuning
   },
 ];
 
-/* Sumbu-X sedikit di atas nilai terbesar supaya proporsi terbaca dramatis
-   dan label nilai di ujung bar tidak terpotong. */
-const X_MAX = 11;
+const TOTAL = DATA.reduce((sum, d) => sum + d.value, 0);
+const persenDari = (value: number) => Math.round((value / TOTAL) * 100);
+
+/* Sumbu-X dalam Triliun; batas di atas nilai terbesar supaya proporsi
+   terbaca jelas dan label nilai di ujung bar tidak terpotong. */
+const X_MAX = 12;
+const X_TICKS = [0, 2, 4, 6, 8, 10, 12];
 
 /* Tick kategori di kiri bar: nama + sumber (sumber lebih kecil/muted). */
 function CategoryTick({
@@ -75,7 +80,7 @@ function CategoryTick({
   );
 }
 
-/* Tooltip: nama, nilai (Rp Triliun), dan sumber. */
+/* Tooltip: nama, nilai (Rp Triliun) + persentase, dan sumber. */
 function BarTooltip({
   active,
   payload,
@@ -89,7 +94,8 @@ function BarTooltip({
     <div className="rounded-lg border border-navy-50 bg-white px-3 py-2 shadow-md">
       <p className="text-sm font-semibold text-ink-900">{d.name}</p>
       <p className="font-mono text-sm text-navy-900">
-        {formatRupiahTriliun(d.value)}
+        {formatRupiahTriliun(d.value)}{" "}
+        <span className="text-ink-400">({persenDari(d.value)}%)</span>
       </p>
       <p className="text-[11px] text-ink-400">Sumber: {d.source}</p>
     </div>
@@ -98,42 +104,94 @@ function BarTooltip({
 
 export default function LossVsBudgetBar() {
   return (
-    <div className="h-[180px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={DATA}
-          layout="vertical"
-          margin={{ top: 4, right: 52, bottom: 4, left: 0 }}
-          barCategoryGap="28%"
-        >
-          <XAxis type="number" domain={[0, X_MAX]} hide />
-          <YAxis
-            type="category"
-            dataKey="name"
-            width={150}
-            axisLine={false}
-            tickLine={false}
-            tick={<CategoryTick />}
-          />
-          <Tooltip
-            cursor={{ fill: "rgba(12,53,106,0.04)" }}
-            content={<BarTooltip />}
-          />
-          <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={30}>
-            {DATA.map((d) => (
-              <Cell key={d.name} fill={d.color} />
-            ))}
-            <LabelList
-              dataKey="value"
-              position="right"
-              offset={10}
-              formatter={(value) => formatTriliun(Number(value))}
-              fill="#0c356a"
-              style={{ fontSize: 13, fontWeight: 700 }}
+    <div>
+      <div className="h-[188px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={DATA}
+            layout="vertical"
+            margin={{ top: 4, right: 44, bottom: 4, left: 0 }}
+            barCategoryGap="30%"
+          >
+            <CartesianGrid
+              horizontal={false}
+              vertical
+              strokeDasharray="3 3"
+              stroke="#eef2f9"
             />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+            <XAxis
+              type="number"
+              domain={[0, X_MAX]}
+              ticks={X_TICKS}
+              tickLine={false}
+              axisLine={{ stroke: "#eef2f9" }}
+              tick={{ fill: "#98a2b3", fontSize: 11 }}
+              tickFormatter={(v) => String(v)}
+            />
+            <YAxis
+              type="category"
+              dataKey="name"
+              width={150}
+              axisLine={false}
+              tickLine={false}
+              tick={<CategoryTick />}
+            />
+            <Tooltip
+              cursor={{ fill: "rgba(12,53,106,0.04)" }}
+              content={<BarTooltip />}
+            />
+            <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={28}>
+              {DATA.map((d) => (
+                <Cell key={d.name} fill={d.color} />
+              ))}
+              <LabelList
+                dataKey="value"
+                position="right"
+                offset={10}
+                formatter={(value) => formatTriliun(Number(value))}
+                fill="#0c356a"
+                style={{ fontSize: 13, fontWeight: 700 }}
+              />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Judul sumbu — gaya referensi */}
+      <p className="mt-1 text-right font-mono text-[11px] text-ink-400">
+        Rp Triliun &rarr;
+      </p>
+
+      {/* Legend kustom */}
+      <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+        {DATA.map((d) => (
+          <li key={d.name} className="flex items-center gap-2">
+            <span
+              className="h-2.5 w-2.5 shrink-0 rounded-full"
+              style={{ backgroundColor: d.color }}
+              aria-hidden
+            />
+            <span className="text-xs font-medium text-ink-600">{d.name}</span>
+          </li>
+        ))}
+      </ul>
+
+      {/* Ringkasan angka — gaya referensi */}
+      <div className="mt-6 grid grid-cols-2 divide-x divide-navy-900/10 border-t border-navy-900/10 pt-5">
+        {DATA.map((d) => (
+          <div key={d.name} className="px-4 first:pl-0">
+            <p className="font-mono text-[11px] uppercase tracking-wide text-ink-400">
+              {d.name}
+            </p>
+            <p className="mt-1 font-mono text-lg font-semibold text-navy-900">
+              {formatTriliun(d.value)}{" "}
+              <span className="text-sm font-medium text-ink-400">
+                ({persenDari(d.value)}%)
+              </span>
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
