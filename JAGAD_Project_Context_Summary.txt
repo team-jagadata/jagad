@@ -1,0 +1,943 @@
+====================================================================
+JAGAD — RINGKASAN LENGKAP PROJECT (CONTEXT DUMP)
+Tim: NiceShield | Hackathon DIGDAYA x Bank Indonesia — PIDI 2026
+Disusun dari seluruh percakapan hingga 15 Juli 2026
+====================================================================
+
+INSTRUKSI PEMAKAIAN DOKUMEN INI
+Dokumen ini disusun untuk jadi "otak eksternal" project — supaya siapapun
+(manusia atau AI session baru) bisa lanjut kerja tanpa membaca ulang
+seluruh histori percakapan. Setiap section berdiri sendiri tapi saling
+terhubung. Baca section 10-11 dulu kalau cuma punya waktu singkat —
+itu berisi status terkini dan aturan main yang tidak boleh dilanggar.
+
+
+====================================================================
+1. IDENTITAS PROJECT
+====================================================================
+Nama produk : JAGAD (Jaga Data)
+Tim         : NiceShield
+Anggota     : Rega Rizkan Azizan   — AI Lead / Research
+              Yazid Al Ghozali     — Product/UX + Business/Domain
+                                     (awalnya Backend Cloud Developer)
+              Yusuf Adhika Jayanto — Team Lead/PM + Tech
+                                     (awalnya Mobile Developer)
+              Thufail Adib Al M.   — Product/UX + Business/Domain
+                                     (awalnya Frontend Developer)
+Institusi   : Universitas Borneo Tarakan
+Kompetisi   : DIGDAYA x Hackathon — Pusat Inovasi Digital Indonesia
+              (PIDI) 2026, didukung Bank Indonesia, OJK, ASPI,
+              Fintech Indonesia, APUVINDO, LPPI
+Kategori    : Penguatan Ketahanan dan Inovasi Keuangan
+              -> Sub: Fraud Detection Systems (FDS), APU/PPT
+Deadline    : Video submission maksimal 26 Juli 2026
+              (Pengumuman Finalis Peserta Capstone: 06 Agt 2026,
+              Capstone Project berlangsung 07 Agt - 19 Sep 2026)
+
+
+====================================================================
+2. SEJARAH PIVOT PRODUK — INI BAGIAN PALING PENTING
+====================================================================
+
+--- v1: Real-time Fraud Detection (SUDAH DI-SUBMIT sebagai proposal
+        tahap 1, SEKARANG SUDAH TIDAK DIPAKAI, disimpan di Archive) ---
+
+Konsep   : "AI Agent 4-Layer untuk Mitigasi Penipuan Online pada
+           Rekening, E-Wallet, Chat, dan Telepon"
+4 lapisan: (1) Notifikasi cerdas — pindai nomor rekening/pengirim/
+               pola percakapan
+           (2) Perekam panggilan — speech-to-text via Live Caption
+           (3) Pembaca clipboard — cek link/nomor/rekening yang disalin
+           (4) Otomasi pelaporan — teruskan ke bank & IASC otomatis
+Bisnis   : B2C gratis (Google Ads, donasi, lisensi Komdigi) lalu
+           pivot ke B2B jual fraud intelligence API ke bank/fintech
+           (lihat dokumen asli "JAGAD B2B Strategy & Validation
+           Playbook" — masih relevan untuk revenue model, lihat
+           section 4)
+
+--- MASALAH KELAYAKAN TEKNIS v1 (alasan pivot) ---
+
+ANDROID:
+- Sejak Android 9-10, aplikasi pihak ketiga TIDAK BISA merekam audio
+  panggilan langsung di level OS.
+- Kebijakan Google Play Store sejak Mei 2022 melarang eksplisit
+  penggunaan Accessibility API untuk "remote call audio recording" —
+  celah yang dulu dipakai aplikasi perekam pihak ketiga sudah ditutup.
+  Google menegaskan ulang kebijakan ini di 2026.
+- Live Caption adalah fitur overlay SISTEM (bukan API) — TIDAK ADA
+  cara resmi bagi aplikasi pihak ketiga membaca teks caption itu
+  secara terprogram. Asumsi awal proposal ("baca output Live
+  Caption") TIDAK VALID secara teknis.
+- Hanya aplikasi dialer bawaan OEM (Pixel, Samsung, Xiaomi) yang
+  boleh merekam panggilan, dan itupun region-restricted karena
+  hukum consent-dua-pihak berbeda tiap negara.
+
+IOS:
+- Lebih ketat lagi. CallKit TIDAK memberi akses log panggilan,
+  metadata, apalagi audio, ke aplikasi pihak ketiga sama sekali.
+- Fitur rekam panggilan native iOS 18+ hanya untuk app Phone/
+  FaceTime bawaan Apple sendiri, wajib mengumumkan suara "sedang
+  direkam" yang tidak bisa dimatikan, dan TIDAK TERSEDIA di Uni
+  Eropa serta banyak negara lain (GDPR).
+
+YANG SECARA LEGAL BISA DIBANGUN (kalau mau pertahankan fitur
+panggilan sebagai roadmap, bukan klaim utama):
+- CallScreeningService (Android 10+, API RESMI) — melihat nomor
+  penelepon SEBELUM diangkat, memutuskan blokir/izinkan. Ini
+  mekanisme yang sama dipakai Truecaller/GetContact. INI YANG
+  SEHARUSNYA JADI KLAIM TEKNIS UTAMA untuk lapisan "Panggilan",
+  BUKAN Live Caption.
+- Reputasi & metadata nomor (database crowdsourced) — legal, tanpa
+  perlu akses isi percakapan.
+- Analisis PASCA-panggilan atas inisiatif pengguna — HANYA dari
+  file rekaman yang SUDAH ADA (bukan intersepsi live). Kabar baik
+  spesifik untuk Indonesia: Samsung (kode region XID) dan Xiaomi
+  (ROM region ID) SAMA-SAMA mempertahankan rekam panggilan native
+  otomatis di Indonesia, KARENA Indonesia tidak punya UU consent-
+  dua-pihak seketat Uni Eropa (itu justru alasan OEM mengunci
+  fitur ini di EU tapi membiarkannya aktif di sini). Vivo
+  dilaporkan juga masih pakai dialer sendiri. TAPI: Oppo, Realme,
+  OnePlus banyak beralih ke Google Dialer stock sejak ~2020 (TIDAK
+  ada rekam native), dan kebanyakan implementasi ini manual per-
+  panggilan (bukan otomatis semua panggilan), bisa berubah antar
+  update firmware. Jadi ini PELENGKAP, bukan mekanisme utama.
+- "Otomasi pelaporan ke IASC" JUGA overclaim — IASC dan
+  cekrekening.id TIDAK punya API publik pihak ketiga. Realistisnya:
+  draft laporan siap-kirim satu ketukan (skenario: user preview lalu
+  konfirmasi kirim / kanal terintegrasi kalau ada partnership),
+  BUKAN pengiriman otomatis tanpa konfirmasi.
+
+--- KEPUTUSAN PEMOTONGAN SCOPE v1 (sebelum pivot total ke v2) ---
+1. Panggilan/Live Caption -> turun jadi roadmap, bukan klaim demo utama
+2. "Otomasi lapor IASC" -> jadi "draft laporan siap kirim satu ketukan"
+3. Narasi B2B -> jadi satu slide penutup, BUKAN setara dgn narasi konsumen
+4. Demo MVP disarankan HANYA SATU alur end-to-end utuh: SMS/notifikasi
+   mencurigakan -> skor risiko -> alert -> draft laporan (sebelum
+   akhirnya pivot total menggantikan pendekatan ini)
+
+--- PIVOT KE v2: ASISTEN PELAPORAN PENIPUAN BERTENAGA AI
+    (INI KONSEP YANG AKTIF DIPAKAI SEKARANG) ---
+
+Insight pemicu pivot: form pelaporan resmi (IASC/cekrekening.id) itu
+panjang dan manual — korban malas/telat melapor padahal golden hour
+(1 jam pertama) krusial untuk pembekuan rekening pelaku oleh bank.
+Field form IASC yang SUDAH DIKONFIRMASI via riset web (bukan asumsi):
+data diri pelapor + foto KTP, kronologi kejadian, jenis transaksi,
+biodata pelaku (nama, no. telepon, sumber/media, tautan situs), data
+rekening pelaku (nama bank, no. rekening, nama pemilik), nilai
+kerugian, tanggal kejadian, upload bukti foto (kepemilikan akun,
+bukti transfer, bukti percakapan, lainnya).
+
+Konsep baru: pengguna unggah bukti apa saja yang mereka punya
+(screenshot chat, notifikasi SMS, foto bukti transfer, rekaman suara)
+-> JAGAD MEMBACA semua bukti itu, MENGEKSTRAK info penting secara
+otomatis, MENYUSUN draft laporan sesuai format IASC -> pengguna
+TINJAU & lengkapi -> KIRIM satu ketukan (ke IASC/bank kalau ada
+integrasi partnership, atau unduh siap-isi manual kalau tidak ada
+partnership — model bisnis TIDAK bergantung pada kerja sama pihak
+ketiga, itu upside bukan syarat).
+
+5 FITUR INTI v2 (final, dipakai di semua materi sejak pivot):
+1. Pengecekan Link
+2. Pengecekan Rekening
+3. Pengecekan Nomor Telepon
+4. Notifikasi SMS
+5. Otomatisasi Pelaporan IASC (fitur inti/jantung produk — proses
+   SEMUA jenis input: teks, gambar, suara/rekaman telepon, jadi
+   laporan siap kirim)
+
+KENAPA PIVOT INI JAUH LEBIH KUAT DARI v1 (alasan tervalidasi):
+- Menyelesaikan SEMUA masalah platform-restriction v1 sekaligus,
+  karena berbasis UPLOAD SUKARELA oleh pengguna untuk keperluan
+  pelaporan (bukan intersepsi pasif) — kategori legal yang berbeda
+  dan sudah dikonfirmasi diperbolehkan.
+- Field form IASC yang riil semuanya BISA diekstrak dari screenshot
+  yang sudah dipunya korban — bukan fitur di awang-awang.
+- Memotong scope produk dari "4 lapisan deteksi real-time yang
+  rumit secara platform" jadi "SATU pipeline pemrosesan bukti yang
+  jauh lebih sempit dan buildable dalam waktu hackathon".
+
+PIPELINE LOGIKA (PENTING — bukan black-box AI generatif semata):
+Tahap 1 — Semua bukti (foto/rekaman/chat/manual) diubah jadi TEKS:
+          OCR via Android ML Kit Text Recognition (gratis, on-device),
+          speech-to-text untuk audio yang diunggah pengguna sendiri
+          (BUKAN rekam panggilan live — beda kategori legal).
+Tahap 2 — Ekstraksi FIELD: LOGIC/RULE-BASED (regex + kamus nama bank
+          Indonesia), BUKAN AI, untuk ~60-70% field (nomor telepon,
+          nomor rekening, nominal kerugian, tanggal, nama bank).
+          Ini sengaja deterministik supaya bisa dipertanggungjawabkan
+          ke juri ("ini logic, bukan tebak-tebakan AI").
+Tahap 3 — Klasifikasi modus (TF-IDF/keyword scoring ringan, bukan
+          model berat) + KRONOLOGI disusun dari TEMPLATE TERSTRUKTUR
+          berbasis field yang sudah diekstrak (BUKAN generative AI
+          menulis cerita bebas) — karena hasil akhirnya masuk
+          DOKUMEN RESMI ke OJK/IASC, jadi WAJIB direview & disetujui
+          manual oleh pengguna sebelum terkirim. Ini prinsip yang
+          TIDAK BOLEH dilanggar dalam desain manapun ke depan.
+
+PRINSIP PRIVASI (wajib dipertahankan di semua desain, ini juga jadi
+NILAI JUAL bukan sekadar checkbox compliance):
+- Semua pemrosesan data sensitif (foto KTP, isi chat, rekaman suara)
+  di ON-DEVICE, TIDAK disimpan/dikirim dalam bentuk mentah.
+- Yang boleh keluar ke server: HANYA field terstruktur yang sudah
+  teranonimisasi (nomor rekening pelaku, pola modus, dst) — BUKAN
+  foto/rekaman asli pengguna.
+- Consent EKSPLISIT wajib sebelum data diteruskan ke pihak ketiga
+  (dasar hukum: UU PDP Pasal 20).
+- Framing ke pengguna: "kami proses bukti sensitif tanpa
+  menyimpannya" — ini pembeda kompetitif, bukan cuma requirement.
+
+BRAND TETAP "JAGAD (Jaga Data)" — TIDAK ganti nama meski pivot besar,
+karena proposal tahap 1 dan sebagian aset visual sudah pakai nama
+ini, dan maknanya cukup fleksibel ("menjaga data/bukti") untuk
+konsep baru ini juga.
+
+
+====================================================================
+3. DATA & RISET (sumber kredibilitas untuk pitch/proposal)
+====================================================================
+
+--- Data nasional (dari dokumen proposal asli & B2B playbook) ---
+- Kerugian penipuan online nasional: Rp 9,1 triliun dari 411.055
+  laporan (IASC, Nov 2024 - Des 2025), rata-rata ~1.000 laporan/hari
+- Modus impersonation scam (penyamaran otoritas): Rp 1,31 triliun
+  dari 31.299 kasus, rata-rata Rp 42 juta per korban
+- Investasi palsu skala mikro: rata-rata kerugian tertinggi per
+  individu Rp 52 juta
+- Akumulasi investasi ilegal 2017-2023: Rp 139,67 triliun (OJK)
+- 65,43% masyarakat Indonesia masih rendah LITERASI KEUANGAN-nya
+  (PENTING: ini literasi keuangan, BUKAN literasi digital — koreksi
+  yang pernah dilakukan saat menulis pertanyaan webinar TikTok,
+  sumber OJK)
+- Hanya ~1% korban melapor dalam 1 jam pertama / golden hour
+  (sumber Tech in Asia / IASC)
+- IASC 2 tahun terakhir: membekukan 127.047 rekening, menyelamatkan
+  Rp 432-436 miliar (recovery rate ~5% dari total kerugian)
+
+--- Survei primer tim sendiri (56 responden, "Kuisioner Riset
+    Pengalaman Korban Penipuan Online") — INI DATA PALING BERHARGA
+    karena riset asli tim, bukan kutipan pihak lain ---
+- 46% (26/56) kehilangan uang dalam KURANG DARI 30 MENIT sejak
+  kontak pertama dengan pelaku — argumen kuat untuk "deteksi harus
+  terjadi sebelum transfer, bukan sesudah"
+- 84% (47/56) TIDAK mendapatkan kembali dana sepeser pun
+- 39/56 korban bilang pelaku HANYA pakai info UMUM (bukan data
+  pribadi spesifik yang bocor) — artinya kerentanan utama korban
+  itu PSIKOLOGIS (urgensi, otoritas palsu, empati/panik), BUKAN
+  kebocoran data pribadi. Ini insight penting yang mengoreksi asumsi
+  awal proposal yang terlalu menekankan "pelaku menguasai data
+  pribadi korban".
+- 38/56 responden KHAWATIR soal aplikasi yang membaca pesan &
+  panggilan mereka — ini alasan kenapa privasi harus jadi FITUR
+  yang ditonjolkan, bukan cuma disclaimer kecil.
+- Dua studi kasus wawancara terdokumentasi (ada screenshot/rekaman):
+  * Alya (mahasiswi) — penipuan QRIS palsu di TikTok, hampir tertipu
+    pelaku mengaku polisi yang minta uang tebusan keluarga
+  * Aziz & Aqil — pelaku tahu nama lengkap korban, mengatasnamakan
+    kantor POS/Polisi, mengklaim data korban dipakai transaksi
+    narkoba
+  Pola sama di kedua kasus: pelaku mengeksploitasi psikologi panik
+  korban agar segera bertransaksi, bukan murni mengandalkan data
+  pribadi yang bocor.
+
+--- Riset kompetitif: Hackathon BI/OJK tahun-tahun sebelumnya ---
+
+2025 (BI-OJK Hackathon — kategori Mahasiswa & Profesional resmi
+dipisah pertama kali tahun ini):
+- Kategori Profesional: Juara 1 "Dewantara"; Juara 2 "Meaningful
+  Intelligence" dengan produk "Garda AI" (deskripsi resmi: "sistem
+  imun digital yang secara terus-menerus mendeteksi dan mencegah
+  penipuan yang terus berkembang" — SANGAT MIRIP konsep JAGAD v1;
+  salah satu anggota timnya adalah Deputy Group Head Application
+  System Operation di PT Bank Rakyat Indonesia — praktisi bank
+  senior, BUKAN mahasiswa); Juara 3 "Niriksagara"
+- Kategori Mahasiswa (ini kategori yang relevan untuk JAGAD): Juara 1
+  "MTAF Impact" (produk #UMKMSIAP); Juara 2 "KancaKids" (produk
+  KANCA); Juara 3 "Chain Intelligence" (produk CIA)
+- Ada track resmi "Risk Management & Consumer Protection" tahun itu
+  -> BUKTI tema fraud/proteksi TERBUKTI kompetitif dan bisa
+  membawa tim ke posisi juara, bukan tema yang diabaikan juri.
+- Skala kompetisi: 2.336 pendaftar, 743 proposal, hanya 10 finalis
+  total (5 profesional + 5 mahasiswa) — realistis soal ekspektasi,
+  tapi kualitas eksekusi jauh lebih menentukan daripada tema semata.
+- Finalis lain (tidak menang tapi masuk 10 besar) yang juga bertema
+  proteksi/risiko: "GardaChain" (tim mahasiswa "Tiwas Tak Gondeli
+  Tenanan") — nama "Garda" (penjaga) muncul dua kali di finalis,
+  makin menguatkan bahwa tema proteksi itu kompetitif.
+
+2024: Juara 3 "AI4Indonesia" (platform Gen-AI/ML pemetaan potensi
+ekonomi daerah untuk pendanaan UMKM); Juara 2 "Fortune Avenue" (tim
+mahasiswa Teknik Komputer UI). Tidak jelas apakah 2024 sudah
+memisah kategori Mahasiswa/Profesional seperti 2025.
+
+KESIMPULAN RISET KOMPETITIF: tema fraud detection/proteksi VALID
+dan TERBUKTI kompetitif (bukan tema yang salah pilih), tapi
+kompetitor SUNGGUHAN JAGAD ada di kategori Mahasiswa (MTAF Impact,
+KancaKids, Chain Intelligence) — bukan tim berisi praktisi bank
+senior seperti Garda AI yang ada di kategori Profesional terpisah.
+
+--- Referensi desain yang sudah dikumpulkan (image search + upload
+    moodboard manual) ---
+10 kategori referensi app keamanan: fraud alert app, antivirus
+mobile, password manager (dark mode), VPN ("Aman - VPN App UI Kit"
+— nama kebetulan relevan), 2FA, spam call blocker, cybersecurity
+dashboard, document/evidence upload, insurance claim form,
+banking fraud protection (standout: "TAPING: Scam Fraud Prevention
+App" — konsep hampir identik JAGAD; "Scam Guardian AI Scam
+Protection App" — juga sangat relevan)
+5 kategori referensi insurance app: alur klaim, upload foto bukti,
+homepage/dashboard, tracking status klaim (standout: Oscar Health),
+app Indonesia (Asuransi Astra, Una Indonesia)
+Referensi website fraud: Scam Guardian, Real-Time AI Scam Detection
+app landing page, fintech/AML enterprise landing page (pola trust-
+signal institusional: logo klien, angka statistik besar)
+Moodboard "Design Inspiration" (31 screenshot, diupload manual oleh
+user karena Figma MCP rate-limited untuk fetch gambar individual) —
+pola kunci yang sudah diekstrak & dipakai di Design System: satu
+warna solid saturasi tinggi per layar onboarding (bukan satu tema
+navy terus-menerus), ilustrasi 3D/karakter besar sebagai hero,
+tombol CTA lebar-penuh ATAU tombol panah bulat pojok kanan bawah
+(FAB), floating card mengambang di atas background gelap/berwarna
+(pola "Build Your Pingou Profile"), checklist requirement dengan
+centang hijau progresif, layar priming permission satu-izin-satu-
+layar (pola "Don't miss a beat": ilustrasi + headline + alasan +
+CTA + "Not now").
+
+
+====================================================================
+4. MODEL BISNIS
+====================================================================
+
+--- Revenue model (final, sudah tervalidasi lewat B2B Strategy
+    Playbook asli, dipakai sampai sekarang) ---
+Starter tier    : Rp 500-1.000 per API call (fintech kecil, BPR)
+Growth tier     : Rp 15-50 juta/bulan (bank digital, e-wallet)
+Enterprise tier : Rp 500 juta - 1 miliar/tahun (HIMBARA, bank besar)
+Data License    : per kontrak kuartalan (asuransi, regulator)
+
+--- Proyeksi finansial (SEMUA angka di bawah ini ASUMSI, ditandai
+    jelas sebagai estimasi awal, BUKAN hasil terukur — perlu pilot
+    untuk validasi nyata) ---
+Asumsi dasar: 20.000 pengguna aktif tahun 1; insidensi fraud
+0,35%/tahun per pengguna; EFEKTIVITAS CEGAH-TRANSFER 50% (INI
+ASUMSI PALING KRITIS DAN PALING RENTAN DIPERTANYAKAN JURI — belum
+ada data produk nyata, wajib disebut sebagai "akan divalidasi lewat
+pilot" kalau ditanya); rata-rata kerugian per insiden Rp 45 juta
+(rata-rata dari Rp42jt & Rp52jt per OJK).
+
+Hasil kalkulasi:
+- Total Manfaat Terukur (nilai bagi masyarakat, BUKAN revenue):
+  35 insiden terselamatkan/tahun x Rp 45 juta = ~Rp 1,58 miliar/tahun
+- Revenue Tahun 1 (proyeksi pilot): ~Rp 95 juta (1 klien Growth-tier
+  4 bulan @Rp20jt/bln + 1 klien Starter-tier 20.000 API call @Rp750)
+- Revenue Tahun 2 (proyeksi scale): ~Rp 1,73 miliar
+- Investasi/Biaya Tahun 1: ~Rp 45 juta (develop ~Rp6jt one-time +
+  operasional Firebase/API ~Rp15jt/tahun + opsional honor tim
+  ~Rp24jt/tahun; kalau full sweat-equity tanpa honor turun ~Rp21jt)
+- Business ROI (untuk audiens investor, pakai angka Revenue):
+  ~111% di Tahun 1, payback period ~10-11 bulan
+- Social Impact Multiplier (untuk audiens narasi dampak sosial,
+  pakai angka Total Manfaat — JANGAN PERNAH DICAMPUR dengan Business
+  ROI di atas dalam satu klaim, karena basisnya beda dan bisa
+  terlihat mengada-ada kalau digabung): ~3.400%, atau lebih mudah
+  disampaikan sebagai "setiap Rp1 yang diinvestasikan berpotensi
+  menciptakan ~Rp35 nilai bagi masyarakat"
+
+--- Target investor/offtaker (strategi wawancara sudah disusun di
+    playbook asli, BELUM DILAKSANAKAN per percakapan ini) ---
+Prioritas tinggi: Head of Fraud/Risk bank HIMBARA (BRI, BCA, Mandiri,
+BNI), VP Trust & Safety e-wallet (DANA, GoPay, OVO)
+Prioritas sedang: CTO/Chief Digital Officer bank digital (Jago, Blu),
+Compliance/Risk Officer fintech lending (anggota AFTECH)
+Tambahan: tim IASC/Satgas PASTI OJK, Product Manager FMS Jalin
+Pembayaran Nusantara
+5 Hipotesis validasi (H1-H5) sudah disusun lengkap dengan kriteria
+"tervalidasi jika..." — cek dokumen asli B2B playbook untuk detail
+pertanyaan wawancara per hipotesis.
+
+
+====================================================================
+5. ARSITEKTUR TEKNIS (v2, referensi dari JAGAD_BUILD_SPEC.md asli —
+   sebagian konsep dari v1 masih reusable meski pivot fitur)
+====================================================================
+
+Stack     : Native Kotlin/Android — BUKAN Flutter (keputusan final,
+            meski proposal tahap 1 sempat menyebut Flutter; alasan:
+            NotificationListenerService, clipboard, accessibility
+            adalah system API Android yang lebih bersih diakses
+            native daripada lewat platform channel Flutter)
+minSdk    : 26 (jangkau ~90% perangkat Android)
+
+Pipeline arsitektur 6-layer (konsep umum, kini diadaptasi ke tahap
+OCR/ekstraksi-field/template-kronologi dari section 2):
+1. Input Collection — foto/screenshot, rekaman suara (upload, bukan
+   live), chat/notifikasi, input manual
+2. On-Device Processing — OCR (ML Kit), speech-to-text, rule-based
+   parser untuk ekstraksi field
+3. Reputation Validation — Google Safe Browsing/VirusTotal (API
+   nyata, gratis, BENAR-BENAR bisa dipakai) untuk cek URL;
+   cekrekening.id/database nomor HP (DI-MOCK karena TIDAK ADA API
+   publik pihak ketiga resmi — perlu jujur soal ini ke juri)
+4. Risk/Completeness Scoring Engine — skor kelengkapan bukti,
+   formula weighted signal
+5. Output & Action — draft laporan, template kronologi terstruktur,
+   one-tap confirmation (BUKAN auto-send tanpa konfirmasi)
+6. Backend Cloud — Firebase serverless (minimal, murah, auto-scale)
+
+Milestone build M0-M6 (dari dokumen asli, urutan: scaffold proyek ->
+tulang punggung/OCR+ekstraksi+scoring -> notifikasi/clipboard ->
+simulasi analisis suara -> cek reputasi -> backend minimal -> polish)
+
+
+====================================================================
+6. STRUKTUR PROJECT MANAGEMENT (ClickUp)
+====================================================================
+
+Workspace: "Team Space" (id 901811806985)
+Anggota terverifikasi di ClickUp:
+  regarizz@gmail.com (Rega)       id 113594946
+  Yazid Al Ghozali                id 95472067
+  Thufail Adib                    id 107584859
+  Yusuf Adhika                    id 5786457
+
+Folder: "Hackathon NiceShield — JAGAD" (id 901815188847)
+
+4 List backlog per-role (dipetakan dari struktur role tim yang
+di-share user via gambar):
+  Team Lead & Project Management (PIC Yusuf)     — 6 task
+  Tech & AI Development (PIC Rega+Yusuf)         — 7 task, termasuk
+                                                    milestone M0-M6
+  Product & UX (PIC Yazid+Thufail)               — 6 task
+  Business & Domain (PIC Yazid+Thufail)          — 6 task
+
+2 List Sprint mingguan (dalam folder yang sama, sebagai lapisan
+mingguan di atas backlog per-role, BUKAN duplikat):
+  Sprint 1 (12-18 Jul) — isi: mendalami ide jadi produk, kumpulkan
+    referensi UI jadi satu page, susun gambaran besar fitur, plus
+    task personal (Thufail: referensi design; Rega: logo & color
+    palette; Yusuf: define fitur & ML feasibility), plus 4 task
+    tambahan tanggal 14 Juli (Rega: coba model AI di huggingface.co;
+    Yazid: Design System Figma + lanjut landing page; Thufail:
+    referensi design mobile; Yusuf: riset fitur iOS & Android)
+  Sprint 2 (19-25 Jul) — SENGAJA DIBUAT KOSONG, menunggu hasil
+    Sprint 1 dulu sebelum diisi (supaya tidak salah rencana)
+
+CATATAN: task Yazid "Create Design System into Figma AND continue
+landing page" — kata "landing page" ini yang jadi pemicu pertanyaan
+soal apakah perlu website/landing page terpisah, yang kemudian
+memang dikerjakan (lihat section 7, page Website).
+
+
+====================================================================
+7. FIGMA — INVENTARISASI FILE & PAGE (KEADAAN TERAKHIR)
+====================================================================
+
+*** PENTING: ADA 2 FILE FIGMA TERPISAH, JANGAN TERTUKAR ***
+
+--------------------------------------------------------------
+FILE AKTIF/UTAMA: "JagaData-Dev"
+fileKey: ga0jpz2yS9wW7S8gazFgt3
+(riwayat nama: "Jaga Data" -> "JagaData[OLD]" -> "JagaData-Dev")
+INI FILE YANG DIPAKAI UNTUK SEMUA KERJA TERBARU.
+--------------------------------------------------------------
+
+Page 1 — "Design System" (nodeId 0:1)
+  Isi:
+  - Style guide LAMA (token warna teal v1) — SUDAH TIDAK RELEVAN,
+    belum dihapus, sekadar arsip
+  - Pustaka 19 ikon ASLI dari Figma library "Simple Design System"
+    (lihat section 8 untuk daftar lengkap)
+  - FRAME UTAMA "JAGAD Design System" (nodeId 61:21) — INI YANG
+    PALING PENTING DAN PALING BARU, hasil REBUILD dengan pendekatan
+    desain sengaja (bukan sekadar reproduksi HTML export mekanis):
+
+    Struktur:
+    * Layout sidebar (280px lebar, bg navy-50) + area konten mulai
+      x=336 — meniru pola dokumentasi design-system sungguhan
+      (Material/Carbon/Polaris), BUKAN satu kolom panjang
+    * Header bergaya "case file": teks mono kecil "JGD-DS-2026 v2",
+      judul "JAGAD Design System", subjudul
+    * Sidebar nav (TANPA penomoran 01-06 — sengaja dihapus karena
+      konten referensi bukan proses sekuensial): Brand, Warna,
+      Tipografi, Fondasi, Tombol, Kartu & Status, Form, Pola
+    * Font: Plus Jakarta Sans (display/UI) + IBM Plex Mono (data,
+      nomor kasus, timestamp, hex code, angka statistik) —
+      PENTING: BUKAN Inter, sempat salah pakai Inter di versi
+      awal lalu diperbaiki
+    * Palet warna (final): navy-900 #0C356A (utama/otoritatif),
+      blue-500 #0174BE (interaktif), gold-400 #FFC436 (aksen
+      hangat/promosi), cream-100 #FFF0CE (latar hangat) — plus
+      skala penuh navy/blue/gold/ink/semantic(danger/success/
+      warning/info). Sumber inspirasi awal: palette dari
+      colorhunt.co (kode: 0C356A, 0174BE, FFC436, FFF0CE)
+    * Section Brand: 3 varian logo shield (primary-navy,
+      reversed-putih, tint-krem)
+    * Section Warna: 20 token warna dengan swatch + nama + hex
+    * Section Tipografi: 6 skala type (display/h1/h2/h3/body-lg/
+      body) + contoh teks mono untuk data
+    * Section Fondasi: spacing scale (4px-64px), corner radius
+      (sm/md/lg/xl/pill)
+    * Section Tombol: subsection Varian (Primary/Promosi/Sekunder/
+      Ghost/Bahaya, dengan caption di bawah tiap varian, dan
+      SUDAH PRESISI — lebar diukur dari lebar teks asli + padding
+      konsisten, BUKAN tebakan seperti versi awal), subsection
+      Ukuran (Small/Medium/Large/Disabled), subsection Dengan Ikon
+      (icon button, tombol sosial "Masuk dengan Google", FAB/
+      tombol bulat)
+    * Section Kartu & Status: 3 stat card (Laporan bulan ini,
+      Rata-rata waktu lapor, Kerugian dicegah), floating overlay
+      card "Ringkasan Laporan" (pola dari moodboard referensi —
+      kartu putih mengambang di atas bg gelap), badge (5 tone:
+      Risiko tinggi/Terverifikasi/Menunggu bukti/Diproses/
+      Phishing), alert box (Jangan transfer lagi)
+    * Section Form: input (Jumlah kerugian dengan prefix "Rp",
+      Email dengan error state merah), textarea (Ceritakan
+      kejadian), checkbox
+    * Section Pola: stepper (Cerita/Bukti/Verifikasi/Kirim — SAMA
+      PERSIS dengan label stepper di layar Laporan app halaman
+      Mobile), checklist validator kelengkapan (Nomor rekening
+      pelaku CENTANG, Nominal kerugian CENTANG, Kronologi kejadian
+      KOSONG), progress dots
+    * Grouping rapi: containment-based micro-grouping (tiap swatch/
+      tombol/badge jadi satu grup bernama) + section-based macro-
+      grouping (8 grup besar sesuai sidebar nav)
+
+  BUG YANG SUDAH DITEMUKAN & DIPERBAIKI (penting diketahui siapapun
+  yang lanjut kerja, supaya tidak terulang):
+  1. Ikon awalnya terlihat sebagai KOTAK PUTIH SOLID (bukan bentuk
+     ikon yang benar). PENYEBAB: strokeWeight ikon ikut ter-scale
+     proporsional saat instance di-resize ke ukuran besar (jadi
+     4px, seharusnya 2px), garis jadi terlalu tebal sampai terlihat
+     seperti blok solid. PERBAIKAN: kunci strokeWeight manual ke
+     nilai fixed (2px) SETELAH clone+resize, jangan biarkan ikut
+     ter-scale.
+  2. Tombol Varian/Ukuran awalnya TIDAK PRESISI — lebar kotak
+     ditebak kira-kira, teks tidak benar-benar center (horizontal
+     maupun vertikal). PERBAIKAN: ukur lebar teks ASLI dulu (pakai
+     textAutoResize WIDTH_AND_HEIGHT, baca hasil .width), baru
+     hitung lebar kotak = lebar teks + padding konsisten, baru
+     posisikan teks center berdasarkan ukuran terukur itu.
+  3. Sidebar sempat KE-NEST dalam grup yang salah (tercampur dengan
+     grup section "Brand" karena algoritma containment-grouping
+     keliru mengelompokkan berdasarkan teks pertama yang ditemukan)
+     dan OPACITY-nya jatuh ke 10% (nyaris tak terlihat). PERBAIKAN:
+     reset opacity grup yang salah itu balik ke 100% — ternyata
+     cukup fix di level grup induk, otomatis memulihkan semua anak
+     di dalamnya.
+
+Page 2 — "Mobile" (nodeId 54:144, nama lama:
+  "v2 - Asisten Pelaporan AI (WIP)")
+  Isi: 7 layar app, semua ukuran 390x800, disusun berjajar
+  horizontal dengan jarak 60px antar layar:
+
+  01 Welcome — hero navy dengan logo shield, headline "Kena tipu
+    online? Tenang, kami bantu.", deskripsi singkat, CTA "Mulai
+    laporan" (tombol gold) + "Saya sudah punya akun" (link putih)
+
+  02 Masuk — form login bertema TERANG (bg F6F8FB): field "Nomor
+    HP atau email", field "Kata sandi", link "Lupa sandi?", tombol
+    "Masuk" (navy), badge privasi hijau "Data kamu dienkripsi
+    end-to-end dan tidak pernah dijual"
+
+  03 Chat — interface chat asisten AI JAGAD: header "Asisten JAGAD"
+    dengan badge Online, bubble pesan pembuka "Halo, aku asisten
+    JAGAD. Tenang, kita selesaikan ini bersama. Kamu kehilangan
+    uang lewat cara apa?", quick-reply chips (Transfer bank/
+    Belanja online/Investasi bodong), input field "Ketik pesan..."
+    + tombol kamera + tombol kirim
+
+  04 Laporan — INI FORM UTAMA/JANTUNG PRODUK: header "Detail
+    laporan" dengan stepper 4 langkah (Cerita [selesai,
+    bercentang] -> Bukti [sedang aktif] -> Verifikasi -> Kirim),
+    warning banner kuning "Jangan transfer lagi — Jika pelaku
+    meminta pembayaran tambahan, hentikan dan lanjutkan laporan
+    ini", field "Rekening/akun pelaku", field "Jumlah kerugian"
+    (prefix Rp), textarea "Ceritakan kejadiannya", area upload
+    bukti (opsional, tombol Tambah + ikon dokumen), checkbox
+    consent "Data ini benar dan boleh diteruskan ke pihak
+    berwenang", tombol "Lanjut ke verifikasi"
+
+  05 Status — dashboard tracking SATU laporan (BUKAN daftar semua
+    laporan): header navy "JAGAD" dengan avatar, judul "Laporan
+    kamu aktif", card detail (Case ID CASE-2026-0F3A91, judul
+    "Penipuan transfer bank", badge status "Diproses", Kerugian
+    "Rp 4,25 Jt", Dilaporkan "2 hari lalu"), section "Perkembangan"
+    dengan timeline 3 tahap (Laporan diterima [centang hijau,
+    "Terkirim ke SP4N-LAPOR"] -> Bank diberi tahu [centang hijau,
+    "Rekening pelaku ditandai"] -> Verifikasi pihak berwenang
+    [BELUM selesai, "Estimasi 1x24 jam"]), tombol "Buat laporan
+    baru", bottom nav (Beranda/Laporan/Bantuan — TAPI tab "Beranda"
+    ini BELUM ADA layarnya sendiri, lihat section 10 gap)
+
+  06 Izin Galeri — layar priming permission (pola dari moodboard
+    referensi): ilustrasi ikon dokumen dalam lingkaran biru muda,
+    headline "Izinkan akses galeri", alasan singkat "JAGAD perlu
+    melihat foto untuk mengekstrak bukti otomatis...", badge hijau
+    "Diproses di perangkat", tombol "Izinkan akses" (gold) +
+    "Nanti saja", dot progress (1 aktif dari 2)
+
+  07 Izin Notifikasi — pola sama persis dengan 06, untuk izin baca
+    notifikasi/SMS, ikon chat, dot progress (2 dari 2)
+
+Page 3 — "Website" (nodeId 62:21)
+  Isi: 1 frame landing page utuh, lebar 1440px, hasil implementasi
+  dari HTML export "JAGAD_Web_Starter.html":
+  navbar (logo JAGAD, menu Cara kerja/Untuk bank/Tentang, tombol
+  Masuk + Lapor sekarang) -> hero section (headline sama dengan
+  app + mockup chat asisten di kanan + 3 angka statistik: Laporan
+  diproses 24.800+, Rata-rata waktu lapor 6 menit, Kerugian
+  dicegah Rp 12 M) -> section "Tiga langkah, selesai" (3 card:
+  Ceritakan kejadiannya/Kami susun laporannya/Kirim & pantau) ->
+  section privasi (bg krem, "Data kamu aman, selalu") -> section
+  B2B "Untuk bank & fintech — Fraud intelligence, dari lapangan"
+  (bg navy gelap, 2 stat card + list "Sinyal penipuan terbaru") ->
+  CTA penutup bg gold "Jangan hadapi sendiri" -> footer
+
+Page 4 — "Archive" (nodeId 54:143, nama lama:
+  "Archive - v1 Real-time Detection")
+  Isi: 16 layar v1 LAMA (5 tipe layar x tema gelap/terang: Beranda,
+  Alert Kritis, Detail Kanal Rekening, Detail Kanal Chat & SMS,
+  Detail Kanal Live Caption, Detail Kanal Clipboard, Konfirmasi
+  Laporan, Onboarding Izin) — SUDAH TIDAK RELEVAN dengan konsep v2,
+  disimpan murni sebagai referensi historis/arsip. JANGAN dipakai
+  sebagai basis desain baru tanpa reframing besar.
+
+Page 5 — "JagaData Inspo" (nodeId 68:74)
+  Isi: moodboard 31 screenshot referensi onboarding/permission/
+  login/get-started, di-review manual oleh user via upload
+  screenshot ke chat (karena Figma MCP API sempat rate-limited
+  saat mencoba fetch gambar individual satu-satu). Frame utama
+  bernama "Splash Screen/Onboarding/Login/Get Started/Permission".
+
+--------------------------------------------------------------
+FILE KEDUA (TERKENA RATE LIMIT, JANGAN DIPAKAI DULU): "JagaData"
+fileKey: Zzn5RQE38rwc4OclL9QrJD
+(riwayat nama: "Untitled" -> "JagaData")
+--------------------------------------------------------------
+Punya 3 page saja (limit hard dari Figma plan Starter: maksimal 3
+page per file). Berisi VERSI DUPLIKAT/PARALEL dari sebagian konten
+di atas (5 app screens + Design System + Website) — hasil COPY
+MANUAL oleh user dari file JagaData-Dev, BUKAN dibangun ulang oleh
+AI. File ini SEMPAT dipakai untuk kerja lanjutan (font fix,
+grouping cleanup awal) SEBELUM akhirnya KENA RATE LIMIT Figma MCP
+tool call (limit plan Starter tim) saat mencoba menambah 5
+komponen baru ke Design System-nya. Rate limit ini TIDAK RESET
+meski sudah dicoba ulang beberapa kali dalam sesi yang sama.
+
+AKIBATNYA: semua pekerjaan Figma SETELAH titik itu (rebuild total
+Design System dengan sidebar, fix ikon, fix presisi tombol, 2
+layar priming baru) HANYA dikerjakan di file "JagaData-Dev"
+(ga0jpz2yS9wW7S8gazFgt3), TIDAK di file "JagaData"
+(Zzn5RQE38rwc4OclL9QrJD). KEDUA FILE INI SEKARANG TIDAK SINKRON —
+JagaData-Dev jauh lebih update dan lebih lengkap.
+
+Spesifikasi 5 komponen yang GAGAL ditambahkan ke file ini (tapi
+BERHASIL ditambahkan ke JagaData-Dev, lihat Page 1 di atas):
+Button dengan ikon Google/Apple, FAB, Card ringkasan mengambang,
+Checklist validator kelengkapan, Progress dots — detail lengkap
+posisi/warna/ukuran ada di histori percakapan kalau perlu dibangun
+ulang di file ini nanti (setelah rate limit reset atau upgrade
+plan Figma).
+
+
+====================================================================
+8. PUSTAKA IKON
+====================================================================
+Sumber: Figma library resmi "Simple Design System" — BUKAN custom/
+raw SVG (sempat pakai custom SVG dulu, lalu diganti TOTAL ke
+komponen library asli atas permintaan eksplisit user).
+
+19 ikon terpasang (nama internal -> nama komponen asli di library):
+  shield        -> Shield
+  chevronLeft   -> ChevronLeft
+  check         -> Check
+  search        -> Search
+  send          -> Send
+  flag          -> Flag
+  warning       -> AlertTriangle
+  chat          -> MessageCircle
+  mic           -> Mic
+  link          -> Link2
+  bank          -> CreditCard (CATATAN: library ini TIDAK PUNYA
+                   ikon landmark/bank asli, CreditCard dipakai
+                   sebagai padanan terdekat untuk konsep "rekening")
+  lock          -> Lock
+  home          -> Home
+  clock         -> Clock
+  file          -> FileText
+  settings      -> Sliders
+  signal        -> Wifi
+  battery       -> Battery
+  clipboard     -> Clipboard
+
+CATATAN TEKNIS PENTING (supaya tidak mengulang bug yang sama):
+strokeWeight ikon HARUS dikunci manual ke nilai fixed (disarankan
+2px) SETELAH proses clone+resize instance. Kalau dibiarkan, resize
+tidak menjaga rasio stroke dengan benar di environment Figma MCP
+ini, menyebabkan ikon besar terlihat seperti blok solid/rusak.
+
+
+====================================================================
+9. FLOWCHART YANG SUDAH DIBUAT
+====================================================================
+Semua dibuat lewat tool Visualizer, TAMPIL INLINE DI CHAT SAJA
+(tidak tersimpan sebagai file terpisah), KECUALI nomor 2 yang juga
+diekspor jadi PDF.
+
+1. Diagram positioning JAGAD dalam ekosistem anti-scam nasional —
+   4 tahap siklus fraud (Kontak -> Manipulasi -> Transfer ->
+   Pencucian) dibandingkan dengan titik intervensi JAGAD (sisi
+   pengguna, sebelum transfer) vs pertahanan existing (bank FDS,
+   IASC — baru bertindak SETELAH transfer)
+
+2. Flowchart konsep v2 awal (setelah pivot, versi konseptual/
+   abstrak): dua jalur masuk "Cek cepat" (link/rekening/nomor) dan
+   "Kumpulkan bukti" (screenshot/chat/SMS/rekaman) bertemu di satu
+   pipeline -> Baca & pahami info -> Susun draft laporan -> Tinjau
+   & lengkapi -> Kirim laporan (bercabang: ke IASC/bank ATAU unduh
+   manual). JUGA DIEKSPOR JADI PDF 2 HALAMAN TERSTRUKTUR (halaman 1
+   diagram, halaman 2 penjelasan tiap tahap + keputusan desain
+   kunci + tabel pemetaan ke 5 fitur inti) — file:
+   JAGAD_v2_Alur_Asisten_Pelaporan.pdf, tersimpan di folder outputs
+   percakapan (mungkin perlu diminta ulang kalau sudah tidak
+   tersedia, karena file artifact chat biasanya kedaluwarsa)
+
+3. Flowchart alur pelaporan versi KONKRET (mengikuti label PERSIS
+   yang sudah ada di layar app halaman Mobile): Chat dengan asisten
+   -> Cerita -> Bukti -> Verifikasi -> Kirim laporan -> bercabang 3
+   ke: Laporan diterima / Bank diberi tahu (keduanya sudah selesai,
+   warna teal) / Verifikasi pihak berwenang (masih menunggu, warna
+   kuning) — dibuat SETELAH 5 layar app selesai, supaya flowchart
+   dan implementasi UI benar-benar sinkron
+
+4. Ringkasan/kesimpulan dari flowchart TEKNIS milik Yusuf (sumber:
+   file JAGADATA.png yang diupload user, berisi diagram sistem
+   sangat detail ~30+ node). Diringkas jadi 7 blok inti:
+   - Dua pintu masuk yang BERTEMU di satu mesin: "Deteksi pasif"
+     (baca notifikasi otomatis dari 4 kanal: chat, panggilan, bank
+     ID, link — dengan cascade scoring spam->fraud->early warning)
+     DAN "Aksi aktif pengguna" (buka app, pilih Menu Checking atau
+     Menu Report, masing-masing mencakup 4 tipe data: Link/Caller
+     ID/Bank ID/E-Wallet)
+   - Keduanya masuk ke mesin "Skor risiko" yang SAMA (Risk Scoring
+     + Fuzzy Logic + Database) — artinya sistemnya satu otak
+     terpusat meski sumber datanya beda-beda
+   - Dari skor risiko, TIDAK SEMUA kasus jadi laporan resmi: kalau
+     ringan cukup "Peringatan dini" ke pengguna dan SELESAI di situ
+     (padanan node "Nothing"/"Ignore" di diagram asli); kalau serius
+     baru lanjut ke "AI Agent Reporter" yang menyusun laporan
+     otomatis, form terisi, konfirmasi & tanda tangan affidavit,
+     lalu diteruskan ke "Pihak Terkait", scoring ulang, simpan ke
+     database
+   - GAP PENTING YANG DITEMUKAN DARI DIAGRAM INI (belum ada di
+     rencana sebelumnya): ALUR BANDING/APPEAL. Diagram asli Yusuf
+     sudah punya logic lengkap (aktor "Innocent" -> Submit Appeal
+     -> Appeal -> Review Appeal [ditinjau oleh aktor "JAGADATEAM"]
+     -> is Accepted? -> TRUE: Appeal Accepted / FALSE: Appeal
+     Rejected [dengan jalur dashed kembali ke titik awal]), TAPI
+     BELUM ADA SATU LAYAR UI PUN untuk alur ini di halaman Mobile.
+     Ini penting karena sistem yang otomatis menandai orang
+     "berisiko" dari database crowdsourced BISA SALAH TANDAI orang
+     yang tidak bersalah, dan butuh mekanisme pembelaan diri.
+
+
+====================================================================
+10. GAP / RENCANA HALAMAN YANG BELUM DIKERJAKAN
+    (status per pesan terakhir sebelum ringkasan ini)
+====================================================================
+
+Layar app yang SUDAH ADA (7 total, semua di page Mobile):
+Welcome, Masuk, Chat, Laporan, Status, Izin Galeri, Izin Notifikasi
+
+--- PRIORITAS WAJIB untuk starter/demo (3 layar) ---
+1. Layar "Ekstraksi Otomatis" — INI YANG PALING PENTING DAN PALING
+   MENDESAK. Ini momen "wow" utama produk (AI membaca bukti dan
+   mengekstrak field otomatis), TAPI SAMA SEKALI BELUM ADA layarnya.
+   Layar Laporan step "Bukti" yang ada sekarang cuma punya tombol
+   upload generik, tidak menunjukkan proses ekstraksi itu sendiri.
+   Tanpa layar ini, demo kehilangan bukti visual paling penting
+   dari klaim inti produk.
+2. Layar "Daftar" (Sign up) — cuma ada "Masuk" (login), padahal
+   Welcome punya 2 CTA yang menyiratkan 2 jalur berbeda ("Mulai
+   laporan" vs "Saya sudah punya akun") — jalur pertama harusnya
+   menuju pendaftaran akun baru, bukan langsung ke login.
+3. Layar "Beranda" (dashboard/home) — bottom nav di layar Status
+   SUDAH menyebut tab "Beranda", tapi belum ada layarnya sendiri.
+   Status yang ada sekarang itu detail SATU laporan spesifik, bukan
+   dashboard ringkasan/beranda pengguna.
+
+--- PRIORITAS KUAT tapi bisa disederhanakan (2 layar) ---
+4. Layar "Cek Cepat" (input) — ini jalur untuk 3 dari 5 fitur inti
+   (Cek Link, Cek Rekening, Cek Nomor Telepon). SAMA SEKALI BELUM
+   ADA representasi UI-nya (0%), padahal ini 60% dari daftar 5
+   fitur inti yang selalu disebut di semua materi.
+5. Layar "Hasil Cek Cepat" — pasangan dari layar 4.
+
+--- BOLEH NANTI, bukan starter (2 item) ---
+6. Layar "Riwayat Laporan" (list semua laporan pengguna, bukan
+   cuma satu seperti layar Status sekarang)
+7. Transisi Chat -> Laporan — mungkin cukup ditangani dengan 1
+   tombol CTA di akhir percakapan Chat, BELUM TENTU perlu layar
+   baru terpisah
+
+--- GAP BARU dari flowchart teknis Yusuf, BELUM MASUK
+    pertimbangan/keputusan sebelumnya, PERLU DIPUTUSKAN ---
+8. Alur Banding/Appeal — lihat section 9 poin 4 untuk detail kenapa
+   ini penting. Backend logic-nya sudah dirancang Yusuf, tapi
+   BELUM ADA keputusan apakah ini masuk starter/demo atau tetap
+   backend-only dulu (tidak perlu UI di tahap hackathon).
+
+RINGKASAN ANGKA: kalau SEMUA prioritas "wajib + kuat" (5 layar)
+dikerjakan, totalnya jadi 12 layar (7 existing + 5 baru), BELUM
+termasuk alur Appeal yang statusnya masih perlu diputuskan.
+
+
+====================================================================
+11. KEPUTUSAN & PRINSIP DESAIN YANG SUDAH DISEPAKATI
+    (JANGAN DIUBAH TANPA ALASAN KUAT — ini konsensus hasil banyak
+    iterasi, mengubahnya sembarangan akan bikin inkonsistensi)
+====================================================================
+
+- GAYA VISUAL: terang & hangat sebagai DEFAULT (bukan dark-mode
+  "hacker/security-app" seperti v1). Alasan: 65% target pengguna
+  literasi keuangannya rendah, dark-mode + istilah teknis terasa
+  mengintimidasi, bukan membantu. Dark mode boleh jadi VARIAN
+  opsional (mode malam biasa), TAPI BUKAN identitas visual utama.
+
+- NADA: hangat & manusiawi, TAPI tetap kredibel secara finansial.
+  Bukan "hacker-terminal" (terlalu dingin/teknis), tapi juga bukan
+  terlalu casual sampai terasa tidak resmi — ingat hasil akhir
+  produk ini adalah DOKUMEN RESMI yang masuk ke OJK/bank.
+
+- FONT: Plus Jakarta Sans (untuk semua UI/display) + IBM Plex Mono
+  (KHUSUS untuk data: angka, ID kasus, timestamp, hex code). BUKAN
+  Inter — sempat salah pakai Inter sekali, sudah diperbaiki total,
+  jangan diulang.
+
+- WARNA: navy + blue + gold + cream (BUKAN teal seperti skema v1
+  lama). Kesan yang dikejar: institusi keuangan/asuransi/
+  pemerintahan yang resmi & bisa dipercaya. Sumber inspirasi awal:
+  palette dari colorhunt.co.
+
+- IKON: WAJIB dari library resmi Figma ("Simple Design System"),
+  TIDAK BOLEH raw/custom SVG buatan sendiri lagi. Ini sudah pernah
+  diganti TOTAL dari custom SVG ke komponen library asli atas
+  permintaan eksplisit — jangan balik ke custom SVG.
+
+- TRANSPARANSI AI: kronologi/narasi laporan disusun dari TEMPLATE
+  TERSTRUKTUR berbasis fakta yang sudah diekstrak (field-field
+  konkret), BUKAN generative AI menulis cerita bebas dari nol.
+  Alasan: hasil akhirnya masuk dokumen resmi ke OJK, jadi WAJIB
+  direview & disetujui manual oleh pengguna sebelum terkirim. Ini
+  prinsip yang tidak boleh dilanggar di desain manapun ke depan
+  (termasuk saat merancang layar "Ekstraksi Otomatis" yang masih
+  jadi gap).
+
+- PRIVASI: semua pemrosesan data sensitif di ON-DEVICE, hanya field
+  terstruktur (bukan foto/rekaman mentah) yang boleh keluar ke
+  server, consent eksplisit wajib sebelum data diteruskan pihak
+  ketiga. Ini DIJADIKAN FITUR/nilai jual yang ditonjolkan di UI
+  (badge "Diproses di perangkat" harus muncul di titik-titik
+  sensitif), BUKAN sekadar disclaimer kecil di footer.
+
+- BRAND: tetap "JAGAD (Jaga Data)" — TIDAK ganti nama meski pivot
+  produk besar-besaran, karena proposal tahap 1 dan sebagian aset
+  visual sudah memakainya, dan maknanya cukup fleksibel untuk
+  konsep baru ("menjaga data/bukti").
+
+- ANGKA BISNIS: Business ROI (untuk audiens investor) dan Social
+  Impact Multiplier (untuk audiens narasi dampak sosial) HARUS
+  DIPISAH saat presentasi ke juri — jangan pernah dicampur jadi
+  satu klaim tunggal, karena basis perhitungannya beda dan
+  gabungannya bisa terlihat mengada-ada / tidak kredibel.
+
+- JANGAN OVERCLAIM: hindari klaim "otomatis" untuk hal yang
+  sebenarnya butuh konfirmasi manual pengguna (pengiriman laporan,
+  dst); hindari klaim kemampuan platform yang sudah terbukti tidak
+  feasible secara teknis (rekam panggilan live tanpa batas, akses
+  Live Caption API, dst — lihat section 2 untuk detail lengkap apa
+  saja yang sudah terbukti tidak bisa dibangun).
+
+- SCOPE MVP: lebih baik SATU alur yang benar-benar solid dan jujur
+  daripada banyak fitur setengah-jadi. Ini pelajaran dari
+  percakapan pemotongan scope v1 yang berujung pivot total ke v2 —
+  filosofi ini tetap berlaku untuk v2 juga (contoh: prioritaskan 3
+  layar wajib dulu di section 10, jangan paksa kerjakan 12 layar
+  sekaligus kalau waktu mepet).
+
+
+====================================================================
+12. CATATAN TEKNIS FIGMA MCP
+    (untuk siapapun/AI manapun yang melanjutkan kerja Figma project
+    ini — ini pelajaran dari trial-and-error sepanjang percakapan)
+====================================================================
+
+- Pakai fileKey ga0jpz2yS9wW7S8gazFgt3 (JagaData-Dev) untuk semua
+  kerja baru. JANGAN pakai Zzn5RQE38rwc4OclL9QrJD (JagaData) dulu
+  sampai rate limit-nya dipastikan sudah reset atau plan Figma
+  di-upgrade — cek dulu dengan satu panggilan ringan sebelum
+  mengerjakan sesuatu yang besar di sana.
+
+- Page dalam file Figma yang besar BUTUH eksplisit
+  figma.setCurrentPageAsync() sebelum children-nya benar-benar
+  ter-load ke memori (perilaku lazy-loading). Kalau query
+  .children dari page yang BUKAN currentPage saat itu, hasilnya
+  bisa muncul 0 padahal sebenarnya ada isi — jangan langsung
+  simpulkan data hilang, cek dulu dengan switch page eksplisit.
+
+- Icon instance dari library WAJIB dikunci strokeWeight-nya secara
+  manual ke nilai fixed (2px) SETELAH proses clone+resize. Resize
+  TIDAK menjaga rasio stroke dengan benar di environment MCP ini —
+  kalau dibiarkan, ikon ukuran besar akan terlihat seperti blok
+  solid/rusak (bukan garis ikon yang bersih).
+
+- Untuk teks tombol yang presisi: UKUR lebar teks ASLI dulu (pakai
+  textAutoResize 'WIDTH_AND_HEIGHT', baca hasil properti .width),
+  BARU hitung lebar kotak = lebar teks terukur + padding konsisten.
+  JANGAN menebak lebar kotak duluan lalu memaksakan teks masuk —
+  itu menghasilkan tombol yang tidak presisi/rapi.
+
+- figma.group() BISA menyebabkan efek samping tak terduga — pernah
+  terjadi kasus opacity turun ke 10% akibat nesting grup yang
+  salah (grup ter-gabung dengan konten yang tidak seharusnya
+  karena algoritma containment-grouping keliru mengelompokkan
+  berdasarkan bounding-box). SELALU verifikasi visual (screenshot/
+  get_design_context) setelah operasi grouping besar, jangan cuma
+  percaya nilai return dari kode.
+
+- Auto-layout frame (layoutMode bukan 'NONE') dikombinasikan dengan
+  resize() manual BISA menyebabkan konflik posisi child yang tak
+  terduga (pernah terjadi kasus pergeseran 900px konsisten pada
+  semua elemen dalam satu section). Pola AMAN yang terbukti bekerja:
+  APPEND semua children dulu (proses build lengkap), BARU panggil
+  resize() di akhir sekali saja — jangan resize di tengah proses
+  build, dan SELALU verifikasi hasil akhir secara visual.
+
+- Kalau butuh menambah elemen baru ke section yang sudah ada
+  (bukan membangun dari nol): lebih aman CLEAR TOTAL section itu
+  dulu lalu bangun ulang bersih, daripada menempel elemen baru di
+  atas yang lama — menempel berulang kali meningkatkan risiko bug
+  residual dari operasi-operasi sebelumnya yang saling tumpang
+  tindih.
+
+
+====================================================================
+AKHIR DOKUMEN
+====================================================================
+Kalau ada pertanyaan soal detail yang tidak tercakup di sini
+(misalnya nilai koordinat pasti tiap elemen Figma, isi lengkap
+dokumen sumber asli seperti proposal PDF atau B2B playbook, atau
+detail pertanyaan wawancara validasi H1-H5), rujuk balik ke
+dokumen-dokumen asli yang diupload di awal percakapan:
+- Kerugian_Penipuan_Online_Nasional.docx
+- Hackathon_Bank_Indonesia_-_NiceShieldID.pdf (proposal tahap 1
+  lengkap, versi v1)
+- Kuisioner_Riset_Pengalaman_Korban_Penipuan_Online (CSV, 56
+  responden)
+- niceshield_architecture_...pdf
+- JAGAD_B2B_Strategy_dan_Validation_Playbook.pdf
+- S0210_Jaga_Data_Solusi_AI_Agent_4-Layer...pdf (proposal versi
+  lengkap v1)
+- Arsitektur_JAGAD_-_Flowchart.pdf
+- JAGAD_BUILD_SPEC.md (dibuat dalam percakapan, arsitektur teknis
+  lengkap v2 dengan milestone M0-M6)
