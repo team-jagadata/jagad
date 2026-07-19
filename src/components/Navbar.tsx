@@ -7,7 +7,6 @@ import { fitur, iconGradient, hoverTint } from "./fiturData";
 
 const navLinks = [
   { label: "Cara kerja", href: "/#cara-kerja" },
-  { label: "Data", href: "/data" },
   { label: "Untuk bank", href: "/data#untuk-bank" },
   { label: "Tentang", href: "/#tentang" },
 ];

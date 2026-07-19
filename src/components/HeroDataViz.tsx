@@ -1,6 +1,34 @@
+import Link from "next/link";
 import Reveal from "./Reveal";
 import ReportingGapDonut from "./ReportingGapDonut";
 import LossVsBudgetBar from "./LossVsBudgetBar";
+
+function LearnMore() {
+  return (
+    <Link
+      href="/data"
+      className="group mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-500 transition-colors hover:text-blue-600"
+    >
+      Selengkapnya
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden
+        className="transition-transform duration-200 group-hover:translate-x-0.5"
+      >
+        <path
+          d="m9 6 6 6-6 6"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </Link>
+  );
+}
 
 /* Dua grafik konteks untuk hero: skala penipuan yang tidak dilaporkan dan
    besarnya kerugian dibanding anggaran daerah. */
@@ -33,6 +61,7 @@ export default function HeroDataViz() {
           <div className="mt-4">
             <ReportingGapDonut />
           </div>
+          <LearnMore />
         </div>
 
         <div className="rounded-2xl border border-navy-50 bg-white p-6 shadow-sm">
@@ -46,6 +75,7 @@ export default function HeroDataViz() {
           <div className="mt-6">
             <LossVsBudgetBar />
           </div>
+          <LearnMore />
         </div>
       </div>
     </Reveal>
