@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 
 export type Fitur = {
+  /* Slug URL untuk halaman detail fitur: /fitur/<slug>. */
+  slug: string;
   tag: string;
   title: string;
   description: string;
@@ -30,6 +32,7 @@ const stroke = {
 
 export const fitur: Fitur[] = [
   {
+    slug: "cek-cepat",
     tag: "Cek cepat",
     title: "Periksa sebelum percaya",
     description:
@@ -59,6 +62,7 @@ export const fitur: Fitur[] = [
     ),
   },
   {
+    slug: "peringatan-dini",
     tag: "Peringatan dini",
     title: "Sinyal bahaya lebih awal",
     description:
@@ -87,6 +91,7 @@ export const fitur: Fitur[] = [
     ),
   },
   {
+    slug: "asisten-pelaporan",
     tag: "Jantung produk",
     title: "Asisten pelaporan AI",
     description:
@@ -114,6 +119,7 @@ export const fitur: Fitur[] = [
     ),
   },
   {
+    slug: "skor-risiko",
     tag: "Mesin skor",
     title: "Skor risiko terukur",
     description:
@@ -141,6 +147,7 @@ export const fitur: Fitur[] = [
     ),
   },
   {
+    slug: "jalur-banding",
     tag: "Adil",
     title: "Jalur banding",
     description:
@@ -170,6 +177,7 @@ export const fitur: Fitur[] = [
     ),
   },
   {
+    slug: "komunitas",
     tag: "Komunitas",
     title: "Beranda & komunitas",
     description:

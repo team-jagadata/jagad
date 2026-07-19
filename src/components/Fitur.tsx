@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { fitur, iconGradient } from "./fiturData";
 import Reveal from "./Reveal";
 
@@ -281,7 +282,10 @@ export default function Fitur() {
       <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {fitur.map((item, i) => (
           <Reveal key={item.title} delay={(i % 3) * 90} className="h-full">
-            <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-navy-50 bg-white p-7">
+            <Link
+              href={`/fitur/${item.slug}`}
+              className="group flex h-full flex-col overflow-hidden rounded-2xl border border-navy-50 bg-white p-7 transition-shadow hover:shadow-lg hover:shadow-navy-900/5"
+            >
               <span className="inline-flex w-fit rounded-md bg-navy-50 px-2 py-1 font-mono text-xs font-medium text-ink-500">
                 {String(i + 1).padStart(2, "0")}
               </span>
@@ -289,10 +293,27 @@ export default function Fitur() {
                 {item.title}
               </h3>
               <p className="mt-2 text-sm text-ink-600">{item.description}</p>
-              <div className="mt-auto pt-6">
-                {mockups[item.tag]?.(item.color)}
-              </div>
-            </div>
+              <div className="pt-6">{mockups[item.tag]?.(item.color)}</div>
+              <span className="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-semibold text-blue-500">
+                Selengkapnya
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden
+                  className="transition-transform duration-200 group-hover:translate-x-0.5"
+                >
+                  <path
+                    d="m9 6 6 6-6 6"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+            </Link>
           </Reveal>
         ))}
       </div>

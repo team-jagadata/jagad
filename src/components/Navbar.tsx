@@ -130,7 +130,7 @@ export default function Navbar() {
             {fitur.map((item, i) => (
               <Link
                 key={item.title}
-                href="/#fitur"
+                href={`/fitur/${item.slug}`}
                 tabIndex={open ? 0 : -1}
                 onClick={() => setOpen(false)}
                 style={{ transitionDelay: open ? `${i * 45}ms` : "0ms" }}
