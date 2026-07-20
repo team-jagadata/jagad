@@ -2,11 +2,23 @@
    Metadata ringkas (judul, tag, warna, ikon, preview) tetap tinggal di
    fiturData.tsx — file ini hanya menambah naskah untuk halaman penuh.
 
+   Naskah digrounding ke konteks produk JAGAD (JAGAD_Project_Context_Summary):
+   angka riil dari IASC/OJK + survei tim, dan framing teknis yang jujur
+   (tanpa overclaim "otomatis" untuk hal yang butuh konfirmasi manual).
+
    Skema section sengaja kecil supaya tipografi konsisten: renderer
-   (FeatureArticle) yang memberi gaya, konten cukup deklaratif. */
+   (FeatureArticle) yang memberi gaya, konten cukup deklaratif. Blok `stats`
+   khusus untuk data — nilainya dirender memakai IBM Plex Mono sesuai
+   design system JAGAD (angka, ID kasus, timestamp = mono). */
 
 export type Section =
   | { kind: "prose"; heading?: string; body: string[] }
+  | {
+      kind: "stats";
+      heading?: string;
+      intro?: string;
+      items: { value: string; label: string; note?: string }[];
+    }
   | {
       kind: "list";
       heading?: string;
@@ -28,6 +40,8 @@ export type FeatureContent = {
   /* Ringkasan untuk <meta description> halaman. */
   metaDescription: string;
   sections: Section[];
+  /* Atribusi sumber data, dirender kecil (mono) di kaki artikel. */
+  sources?: string;
 };
 
 export const fiturContent: FeatureContent[] = [
@@ -39,10 +53,31 @@ export const fiturContent: FeatureContent[] = [
     sections: [
       {
         kind: "prose",
-        heading: "Kenapa cek dulu itu penting",
+        heading: "Jeda beberapa detik yang menyelamatkan",
         body: [
-          "Sebagian besar penipuan online berhasil karena satu hal: korban tidak sempat memverifikasi. Tautan hadiah, nomor rekening penjual, atau penelepon yang mengaku dari bank terlihat meyakinkan justru ketika kita sedang buru-buru.",
-          "Cek cepat dirancang untuk momen ragu itu. Tanpa perlu memasang apa pun yang rumit, kamu bisa menaruh satu petunjuk dan langsung tahu seberapa besar risikonya.",
+          "Sebagian besar penipuan online berhasil bukan karena datanya bocor, melainkan karena korban tidak sempat berpikir. Pelaku menekan dengan urgensi dan otoritas palsu, lalu uang berpindah sebelum keraguan sempat muncul.",
+          "Dari survei tim kami terhadap 56 korban, hampir separuhnya kehilangan uang dalam kurang dari 30 menit sejak kontak pertama. Cek cepat dirancang untuk mengisi jeda itu: satu petunjuk, satu skor risiko, cukup untuk menahan diri sebelum transfer.",
+        ],
+      },
+      {
+        kind: "stats",
+        intro: "Kenapa kecepatan memutuskan itu penting:",
+        items: [
+          {
+            value: "46%",
+            label: "korban kehilangan uang dalam < 30 menit sejak kontak pertama",
+            note: "Survei tim · 56 responden",
+          },
+          {
+            value: "84%",
+            label: "korban tidak mendapatkan dananya kembali sepeser pun",
+            note: "Survei tim · 56 responden",
+          },
+          {
+            value: "≈ 1.000",
+            label: "laporan penipuan masuk setiap hari secara nasional",
+            note: "IASC",
+          },
         ],
       },
       {
@@ -57,7 +92,7 @@ export const fiturContent: FeatureContent[] = [
           },
           {
             title: "Rekening",
-            text: "Nomor rekening bank yang pernah dilaporkan terkait penipuan.",
+            text: "Nomor rekening yang pernah dilaporkan terkait penipuan.",
           },
           {
             title: "Nomor telepon",
@@ -79,7 +114,7 @@ export const fiturContent: FeatureContent[] = [
           },
           {
             title: "Mesin menilai",
-            text: "JAGAD mencocokkan dengan database modus dan menghitung skor risiko.",
+            text: "Tautan dicek ke layanan reputasi keamanan; nomor dan rekening dicocokkan dengan database modus, lalu dihitung skor risikonya.",
           },
           {
             title: "Ambil keputusan",
@@ -92,6 +127,7 @@ export const fiturContent: FeatureContent[] = [
         body: "Cek cepat bukan vonis final — ia memberi kamu jeda untuk berpikir sebelum uang berpindah.",
       },
     ],
+    sources: "Sumber: IASC (Nov 2024–Des 2025); survei korban penipuan tim NiceShield (56 responden).",
   },
   {
     slug: "peringatan-dini",
@@ -104,7 +140,7 @@ export const fiturContent: FeatureContent[] = [
         heading: "Bahaya sering datang tanpa dicari",
         body: [
           "Berbeda dari cek cepat yang kamu picu sendiri, banyak penipuan justru datang lebih dulu: SMS “hadiah”, panggilan mengaku petugas, atau tautan yang muncul di tengah aktivitas lain.",
-          "Peringatan dini bekerja di latar untuk mengenali sinyal-sinyal itu lebih awal, sehingga kamu waspada sejak pesan pertama masuk — bukan setelah kejadian.",
+          "Peringatan dini mengenali sinyal-sinyal itu lebih awal, sehingga kamu waspada sejak pesan pertama masuk — bukan setelah kejadian.",
         ],
       },
       {
@@ -121,18 +157,24 @@ export const fiturContent: FeatureContent[] = [
           },
           {
             title: "Peringatan panggilan",
-            text: "Nomor penelepon yang berulang, tak dikenal, atau pernah dilaporkan.",
+            text: "Nomor penelepon yang tampil sebelum diangkat, lewat mekanisme resmi yang sama seperti aplikasi penyaring panggilan.",
           },
         ],
       },
       {
         kind: "prose",
-        heading: "Peringatan, bukan pemblokiran sepihak",
+        heading: "Dibangun dengan cara yang legal dan menghormati privasi",
         body: [
-          "Tujuannya membantu kamu memutuskan, bukan mengambil alih keputusan. Setiap peringatan menjelaskan alasannya secara singkat, sehingga kamu tetap pegang kendali penuh.",
+          "Peringatan dibentuk dari reputasi dan metadata nomor serta pola pesan — bukan dari menyadap isi percakapanmu. Kami sengaja tidak merekam panggilan langsung karena, selain tidak diizinkan platform, itu bukan cara yang kami mau perlakukan pada penggunanya.",
+          "Dalam survei kami, 38 dari 56 responden justru khawatir pada aplikasi yang membaca pesan dan panggilan mereka. Karena itu privasi kami jadikan fitur, bukan sekadar catatan kaki: pemrosesan sensitif berjalan di perangkatmu dan ditandai jelas.",
         ],
       },
+      {
+        kind: "callout",
+        body: "Tujuannya membantu kamu memutuskan, bukan mengambil alih keputusan. Setiap peringatan menjelaskan alasannya secara singkat.",
+      },
     ],
+    sources: "Sumber: survei korban penipuan tim NiceShield (56 responden).",
   },
   {
     slug: "asisten-pelaporan",
@@ -142,10 +184,31 @@ export const fiturContent: FeatureContent[] = [
     sections: [
       {
         kind: "prose",
-        heading: "Melapor seharusnya tidak melelahkan",
+        heading: "Kecepatan melapor menentukan segalanya",
         body: [
-          "Ketika sudah terlanjur menjadi korban, hambatan terbesar berikutnya adalah proses melapor: format yang asing, kronologi yang harus rapi, dan bukti yang tersebar di banyak tempat.",
-          "Asisten pelaporan adalah jantung produk JAGAD. Ia mengubah cerita dan bukti mentahmu menjadi laporan yang siap diproses pihak terkait, tanpa kamu harus paham istilah teknisnya.",
+          "Setelah menjadi korban, satu jam pertama menentukan: pada rentang itulah bank paling mungkin membekukan rekening pelaku sebelum dana berpindah lagi. Sayangnya form pelaporan resmi panjang dan manual, sehingga sangat sedikit korban yang melapor tepat waktu.",
+          "Asisten pelaporan adalah jantung produk JAGAD. Ia mengubah cerita dan bukti mentahmu menjadi laporan yang siap diproses pihak terkait, tanpa kamu harus paham istilah teknisnya — supaya melapor tidak lagi kalah cepat dari pelaku.",
+        ],
+      },
+      {
+        kind: "stats",
+        intro: "Kenapa golden hour ini genting:",
+        items: [
+          {
+            value: "≈ 1%",
+            label: "korban yang melapor dalam 1 jam pertama (golden hour)",
+            note: "IASC / Tech in Asia",
+          },
+          {
+            value: "127.047",
+            label: "rekening pelaku yang dibekukan IASC dalam 2 tahun",
+            note: "IASC",
+          },
+          {
+            value: "Rp 432 M",
+            label: "dana yang berhasil diselamatkan lewat pembekuan cepat",
+            note: "IASC",
+          },
         ],
       },
       {
@@ -154,45 +217,36 @@ export const fiturContent: FeatureContent[] = [
         steps: [
           {
             title: "Ceritakan kejadiannya",
-            text: "Jawab pertanyaan sederhana; JAGAD merangkai kronologinya untukmu.",
+            text: "Jawab pertanyaan sederhana; JAGAD merangkai kronologinya dari fakta yang kamu berikan.",
           },
           {
             title: "Unggah bukti",
-            text: "Tangkapan layar, mutasi, atau pesan diproses menjadi lampiran terstruktur.",
+            text: "Tangkapan layar, mutasi, atau rekaman dibaca (OCR) untuk mengekstrak field penting secara otomatis.",
           },
           {
             title: "Tinjau & tanda tangani",
-            text: "Periksa form terisi otomatis, beri persetujuan (affidavit) bila sudah sesuai.",
+            text: "Periksa form terisi, perbaiki bila perlu, lalu beri persetujuan sebelum apa pun dikirim.",
           },
           {
             title: "Teruskan",
-            text: "Laporan diteruskan ke pihak terkait dalam format yang mereka pahami.",
+            text: "Laporan diteruskan ke pihak terkait, atau diunduh siap-isi bila kanal langsung belum tersedia.",
           },
         ],
       },
       {
-        kind: "list",
-        heading: "Yang kamu dapatkan",
-        items: [
-          {
-            title: "Form terisi otomatis",
-            text: "Sesuai format IASC, siap diproses tanpa bolak-balik revisi.",
-          },
-          {
-            title: "Affidavit / persetujuan",
-            text: "Kamu tetap yang memberi persetujuan akhir sebelum apa pun dikirim.",
-          },
-          {
-            title: "Teruskan ke pihak terkait",
-            text: "Sekali susun, langsung sampai ke tujuan yang tepat.",
-          },
+        kind: "prose",
+        heading: "Logika, bukan tebak-tebakan",
+        body: [
+          "Field seperti nomor rekening, nominal kerugian, tanggal, dan nama bank diekstrak lewat aturan deterministik (pencocokan pola dan kamus nama bank), bukan ditebak model generatif. Kronologi disusun dari template terstruktur berbasis fakta itu — bukan cerita bebas.",
+          "Karena hasilnya masuk dokumen resmi, JAGAD tidak pernah mengirim tanpa persetujuanmu. Kamu selalu meninjau dan menyetujui lebih dulu.",
         ],
       },
       {
         kind: "callout",
-        body: "Bukti sensitif diproses seperlunya dan tidak pernah dikirim tanpa persetujuanmu.",
+        body: "Bukti sensitif diproses di perangkat. Hanya field terstruktur yang perlu, dan hanya dengan persetujuan eksplisitmu (sesuai UU PDP Pasal 20), yang diteruskan.",
       },
     ],
+    sources: "Sumber: IASC (Nov 2024–Des 2025); UU Pelindungan Data Pribadi Pasal 20.",
   },
   {
     slug: "skor-risiko",
@@ -204,8 +258,8 @@ export const fiturContent: FeatureContent[] = [
         kind: "prose",
         heading: "Satu mesin di balik setiap keputusan",
         body: [
-          "Cek cepat dan asisten pelaporan tampak seperti dua fitur berbeda, tetapi keduanya bermuara pada mesin yang sama. Mesin skor inilah yang mengubah kumpulan sinyal menjadi satu angka yang mudah dibaca.",
-          "Karena semua jalur memakai logika penilaian yang sama, hasilnya konsisten: petunjuk yang sama akan menghasilkan penilaian yang sama, kapan pun dan lewat jalur mana pun.",
+          "Cek cepat, peringatan dini, dan asisten pelaporan tampak seperti fitur berbeda, tetapi semuanya bermuara pada mesin yang sama. Mesin skor inilah yang mengubah kumpulan sinyal menjadi satu angka yang mudah dibaca.",
+          "Karena semua jalur memakai logika penilaian yang sama, hasilnya konsisten: petunjuk yang sama menghasilkan penilaian yang sama, kapan pun dan lewat jalur mana pun.",
         ],
       },
       {
@@ -227,13 +281,37 @@ export const fiturContent: FeatureContent[] = [
         ],
       },
       {
+        kind: "stats",
+        heading: "Skala yang mesin ini hadapi",
+        intro:
+          "Penilaian yang terukur penting karena angkanya besar dan nyata:",
+        items: [
+          {
+            value: "Rp 9,1 T",
+            label: "total kerugian penipuan online nasional",
+            note: "IASC · Nov 2024–Des 2025",
+          },
+          {
+            value: "411.055",
+            label: "laporan penipuan yang masuk pada periode itu",
+            note: "IASC",
+          },
+          {
+            value: "≈ Rp 22 jt",
+            label: "rata-rata kerugian di balik setiap laporan",
+            note: "Turunan IASC",
+          },
+        ],
+      },
+      {
         kind: "prose",
         heading: "Bisa dipertanggungjawabkan",
         body: [
-          "Skor bukan kotak hitam. Setiap penilaian dapat ditelusuri kembali ke sinyal yang mendasarinya, sehingga keputusan bisa dijelaskan — dan bila perlu, dikoreksi lewat jalur banding.",
+          "Skor bukan kotak hitam. Setiap penilaian dapat ditelusuri kembali ke sinyal yang mendasarinya, sehingga keputusan bisa dijelaskan kepada pengguna maupun regulator — dan bila keliru, dikoreksi lewat jalur banding.",
         ],
       },
     ],
+    sources: "Sumber: IASC (Nov 2024–Des 2025).",
   },
   {
     slug: "jalur-banding",
@@ -245,7 +323,7 @@ export const fiturContent: FeatureContent[] = [
         kind: "prose",
         heading: "Adil berarti bisa dikoreksi",
         body: [
-          "Tidak ada mesin yang sempurna. Sebuah nomor bisa dipakai bergantian, sebuah rekening bisa berpindah tangan, dan orang yang tidak bersalah bisa ikut tertandai.",
+          "Tidak ada mesin yang sempurna. Sebuah nomor bisa dipakai bergantian, sebuah rekening bisa berpindah tangan, dan orang yang tidak bersalah bisa ikut tertandai oleh database yang dikumpulkan bersama.",
           "Karena itu keadilan kami bangun sejak awal, bukan ditambal belakangan. Jalur banding memastikan setiap penilaian negatif punya pintu untuk ditinjau ulang oleh manusia.",
         ],
       },
@@ -283,8 +361,29 @@ export const fiturContent: FeatureContent[] = [
         kind: "prose",
         heading: "Kewaspadaan tumbuh bersama",
         body: [
-          "Modus penipuan berkembang cepat, dan sering kali korban pertama adalah yang belum pernah mendengar polanya. Informasi yang mengalir lebih cepat dari modus itu sendiri adalah pertahanan terbaik.",
-          "Beranda dan komunitas menyatukan gambaran besar dengan pengalaman nyata pengguna, supaya setiap orang bisa belajar dari yang lain tanpa harus lebih dulu jadi korban.",
+          "Modus penipuan berkembang cepat, dan korban pertama sering kali adalah yang belum pernah mendengar polanya. Informasi yang mengalir lebih cepat dari modus itu sendiri adalah pertahanan terbaik.",
+          "Ini penting karena mayoritas masyarakat masih rentan secara literasi keuangan. Beranda dan komunitas menyatukan gambaran besar dengan pengalaman nyata pengguna, supaya setiap orang bisa belajar dari yang lain tanpa harus lebih dulu jadi korban.",
+        ],
+      },
+      {
+        kind: "stats",
+        intro: "Kerentanan yang ingin kami tutup bersama:",
+        items: [
+          {
+            value: "65,4%",
+            label: "masyarakat masih rendah literasi keuangannya",
+            note: "OJK",
+          },
+          {
+            value: "Rp 1,31 T",
+            label: "kerugian dari modus penyamaran otoritas",
+            note: "IASC",
+          },
+          {
+            value: "31.299",
+            label: "kasus penyamaran otoritas yang tercatat",
+            note: "IASC",
+          },
         ],
       },
       {
@@ -306,6 +405,7 @@ export const fiturContent: FeatureContent[] = [
         ],
       },
     ],
+    sources: "Sumber: OJK; IASC (Nov 2024–Des 2025).",
   },
 ];
 

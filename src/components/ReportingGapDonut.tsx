@@ -89,11 +89,6 @@ export default function ReportingGapDonut() {
                   fill={d.color}
                   stroke={d.utama ? d.color : "#ffffff"}
                   strokeWidth={d.utama ? 3 : 2}
-                  style={
-                    d.utama
-                      ? { filter: "drop-shadow(0 4px 8px rgba(220,38,38,0.35))" }
-                      : undefined
-                  }
                 />
               ))}
             </Pie>

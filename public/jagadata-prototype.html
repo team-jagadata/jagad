@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JagaData Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============ JagaData design tokens (dari JAGAD design system) ============ */
+:root{
+  --navy-950:#071F42; --navy-900:#0C356A; --navy-800:#103F7D; --navy-700:#164E96;
+  --navy-100:#E5EDF7; --navy-50:#F2F6FB;
+  --blue-700:#015A93; --blue-600:#0166A8; --blue-500:#0174BE; --blue-400:#2E90D0;
+  --blue-200:#A9D3ED; --blue-100:#DCEDF8; --blue-50:#EEF6FC;
+  --gold-600:#C9930A; --gold-500:#EDAF16; --gold-400:#FFC436; --gold-300:#FFD675; --gold-100:#FFF3D2;
+  --cream-100:#FFF0CE; --cream-50:#FFF9EC;
+  --ink-900:#0E1B2E; --ink-700:#33435A; --ink-500:#5C6B82; --ink-400:#8593A8;
+  --ink-300:#B7C1D0; --ink-200:#D9E0E9; --ink-100:#EDF1F6; --ink-50:#F6F8FB; --white:#FFF;
+  --danger-600:#C0392B; --danger-500:#E24A3B; --danger-100:#FBE3E0;
+  --success-600:#1E8E5A; --success-500:#27AE6D; --success-100:#DDF3E8;
+  --warning-500:var(--gold-500); --warning-100:var(--gold-100);
+
+  --text-strong:var(--navy-900); --text-body:var(--ink-700); --text-muted:var(--ink-500);
+  --text-faint:var(--ink-400);
+  --surface-page:var(--ink-50); --surface-card:var(--white); --surface-sunken:var(--ink-100);
+  --border-subtle:var(--ink-200); --border-strong:var(--ink-300);
+
+  /* Logo JagaData (PNG transparan). Warna aslinya #0C356A, sama persis dengan
+     --navy-900, jadi di latar navy dia tak terlihat: pakai .logo.on-dark. */
+  --logo-url:url("data:image/png;base64,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");
+
+  --font-sans:'Plus Jakarta Sans',ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+
+  /* Skala tipografi: diambil dari design system JAGAD. Langkah di atas --fs-h2
+     dibuang karena tidak terpakai di frame 390px. */
+  --fs-h2:30px; --fs-h3:23px; --fs-h4:19px;
+  --fs-body-lg:17px; --fs-body:15px; --fs-body-sm:13px;
+  --fs-caption:12px; --fs-overline:11px;
+
+  --fw-regular:400; --fw-medium:500; --fw-semibold:600; --fw-bold:700; --fw-extrabold:800;
+
+  --lh-tight:1.1; --lh-heading:1.25; --lh-snug:1.4; --lh-body:1.6;
+
+  --ls-tight:-0.02em; --ls-snug:-0.01em; --ls-overline:0.08em;
+
+  /* Grid 4px */
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px;
+  --space-6:24px; --space-8:32px; --space-10:40px;
+
+  --radius-sm:6px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px; --radius-pill:999px;
+  --shadow-xs:0 1px 1px rgba(12,53,106,.05);
+  --shadow-sm:0 1px 3px rgba(12,53,106,.08),0 1px 2px rgba(12,53,106,.04);
+  --shadow-md:0 4px 12px rgba(12,53,106,.08);
+  --shadow-lg:0 12px 32px rgba(12,53,106,.12);
+  --focus-ring:0 0 0 3px rgba(1,116,190,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:var(--ink-100);color:var(--text-body);min-height:100vh;
+     font-size:var(--fs-body);font-weight:var(--fw-regular);line-height:var(--lh-body)}
+
+/* ============ stage + demo nav ============ */
+.demo-nav{display:flex;gap:6px;justify-content:center;padding:14px;flex-wrap:wrap}
+.demo-nav button{border:1.5px solid var(--border-strong);background:var(--surface-card);color:var(--text-body);border-radius:var(--radius-pill);padding:var(--space-2) var(--space-3);font-family:var(--font-sans);font-size:var(--fs-body-sm);font-weight:var(--fw-medium);cursor:pointer}
+.demo-nav button.on{background:var(--navy-900);color:#fff;border-color:var(--navy-900)}
+.stage{display:flex;justify-content:center;padding:12px 24px 48px}
+
+/* ============ phone frame ============ */
+.phone{width:390px;height:800px;border-radius:46px;background:#0b0f18;padding:12px;box-shadow:var(--shadow-lg);flex-shrink:0}
+.phone-inner{position:relative;width:100%;height:100%;border-radius:34px;overflow:hidden;background:var(--surface-page);display:flex;flex-direction:column}
+/* Ini simulasi layar HP, di mana scrollbar tidak pernah terlihat. Disembunyikan
+   untuk seluruh isi frame sekaligus supaya container scroll baru ikut otomatis.
+   scrollbar-width = standar (Firefox, Chrome 121+), ::-webkit-scrollbar = Safari. */
+.phone-inner *{scrollbar-width:none}
+.phone-inner *::-webkit-scrollbar{display:none}
+
+/* Ketiga container ini flex-column yang bisa di-scroll. Tanpa flex-shrink:0,
+   anaknya DIPERAS saat konten melebihi tinggi layar, bukan bikin scroll: kartu
+   jadi lebih pendek dari isinya lalu terpotong overflow:hidden. Dijaga di satu
+   tempat supaya tidak terulang per container. */
+.home-scroll>*, .chat-scroll>*, .form-scroll>*{flex-shrink:0}
+
+/* Statusbar & homebar duduk di background .phone-inner yang terang, bukan di atas
+   layar berwarna, jadi keduanya selalu gelap/silver di semua layar. */
+.statusbar{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;flex-shrink:0;font-size:var(--fs-body-sm);font-weight:var(--fw-semibold);color:var(--text-strong)}
+.batt{width:22px;height:11px;border:1.5px solid currentColor;border-radius:3px;position:relative;display:inline-block}
+.batt i{position:absolute;inset:1.5px;right:5px;background:currentColor;border-radius:1px}
+.homebar{height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.homebar i{width:130px;height:5px;border-radius:3px;background:var(--ink-300)}
+
+/* ============ screens ============ */
+.screen{flex:1;min-height:0;display:none;flex-direction:column}
+.screen.on{display:flex}
+
+/* ============ shared components (gaya cal.diy: rapi, border tipis, radius terkontrol) ============ */
+.btn{display:flex;align-items:center;justify-content:center;gap:var(--space-2);border:none;cursor:pointer;font-family:var(--font-sans);font-weight:var(--fw-semibold);border-radius:10px;transition:filter .15s}
+.btn:hover{filter:brightness(1.06)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-lg{height:52px;font-size:var(--fs-body);width:100%}
+.btn-md{height:44px;font-size:var(--fs-body-sm);padding:0 var(--space-4)}
+.btn-primary{background:var(--blue-500);color:#fff}
+.btn-navy{background:var(--navy-900);color:#fff}
+.btn-accent{background:var(--gold-400);color:var(--navy-900)}
+.btn-secondary{background:var(--surface-card);color:var(--text-strong);border:1.5px solid var(--border-strong)}
+.btn-ghost{background:transparent;color:var(--blue-600)}
+
+.card{background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:var(--space-4)}
+
+.topbar{display:flex;align-items:center;gap:var(--space-2);height:52px;padding:0 10px;flex-shrink:0;background:var(--surface-card);border-bottom:1px solid var(--border-subtle)}
+.topbar .title{flex:1;text-align:center;font-size:var(--fs-body);font-weight:var(--fw-bold);color:var(--text-strong)}
+.iconbtn{width:40px;height:40px;border-radius:var(--radius-md);border:none;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-strong)}
+.iconbtn:hover{background:var(--ink-100)}
+.spacer40{width:40px}
+
+.badge{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-pill);padding:3px 10px;font-size:var(--fs-caption);font-weight:var(--fw-semibold);line-height:var(--lh-snug)}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.badge.success{background:var(--success-100);color:var(--success-600)}
+.badge.danger{background:var(--danger-100);color:var(--danger-600)}
+.badge.warning{background:var(--warning-100);color:var(--gold-600)}
+.badge.info{background:var(--blue-100);color:var(--blue-700)}
+.badge.neutral{background:var(--ink-100);color:var(--ink-500)}
+
+.alert{display:flex;gap:10px;border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);font-size:var(--fs-body-sm);line-height:var(--lh-snug)}
+.alert.warning{background:var(--warning-100);color:#7a5a06}
+.alert.info{background:var(--blue-50);color:var(--blue-700)}
+
+.field label{display:block;font-size:var(--fs-body-sm);font-weight:var(--fw-semibold);color:var(--text-strong);margin-bottom:6px}
+.field input,.field textarea{width:100%;border:1px solid var(--border-strong);border-radius:10px;padding:11px 12px;font-family:var(--font-sans);font-size:var(--fs-body);font-weight:var(--fw-regular);color:var(--text-strong);background:var(--surface-card)}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--blue-500);box-shadow:var(--focus-ring)}
+.field .hint{font-size:var(--fs-caption);color:var(--text-muted);margin-top:var(--space-1)}
+
+.mono{font-family:var(--font-mono)}
+.section-label{font-size:var(--fs-overline);font-weight:var(--fw-bold);color:var(--text-muted);text-transform:uppercase;letter-spacing:var(--ls-overline)}
+
+/* bottom nav */
+.bottomnav{display:flex;border-top:1px solid var(--border-subtle);background:var(--surface-card);padding:8px 0;flex-shrink:0}
+.bottomnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:var(--space-1);border:none;background:none;cursor:pointer;color:var(--text-faint);font-family:var(--font-sans);font-size:var(--fs-overline);font-weight:var(--fw-medium)}
+.bottomnav button.on{color:var(--blue-600);font-weight:var(--fw-semibold)}
+
+/* stepper */
+.stepper{display:flex;align-items:center;gap:var(--space-1)}
+.stepper .step{display:flex;align-items:center;gap:6px;font-size:var(--fs-overline);font-weight:var(--fw-medium);color:var(--text-faint)}
+.stepper .step .n{width:22px;height:22px;border-radius:50%;background:var(--ink-200);color:var(--ink-500);display:flex;align-items:center;justify-content:center;font-size:var(--fs-overline);font-weight:var(--fw-semibold)}
+.stepper .step.done .n{background:var(--success-500);color:#fff}
+.stepper .step.cur .n{background:var(--blue-500);color:#fff}
+.stepper .step.cur{color:var(--text-strong)}
+.stepper .bar{flex:1;height:2px;background:var(--ink-200);min-width:10px}
+
+/* ============ welcome: onboarding 3 slide ============ */
+#scr-welcome{background:var(--navy-900);color:#fff;position:relative;overflow:hidden}
+
+/* Ornamen diagonal: dulu satu pita opacity .5 yang samar dan terbaca seperti
+   artefak. Sekarang pita tegas + garis emas tipis pada sudut yang sama (-30°),
+   supaya jelas disengaja. Murni CSS, tanpa file gambar. */
+#scr-welcome .slash{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+#scr-welcome .slash::before{content:'';position:absolute;width:760px;height:190px;top:88px;left:-170px;
+  background:linear-gradient(90deg,var(--blue-500) 0%,var(--blue-600) 52%,transparent 92%);
+  transform:rotate(-30deg);opacity:.9}
+#scr-welcome .slash::after{content:'';position:absolute;width:760px;height:3px;top:322px;left:-150px;
+  background:linear-gradient(90deg,var(--gold-400) 0%,var(--gold-400) 45%,transparent 85%);
+  transform:rotate(-30deg);opacity:.85}
+
+.wc-top{display:flex;align-items:center;justify-content:space-between;padding:var(--space-1) 28px 0;flex-shrink:0;position:relative;height:44px}
+.wc-skip{background:none;border:none;cursor:pointer;font-family:var(--font-sans);font-size:var(--fs-body-sm);
+         font-weight:var(--fw-semibold);color:var(--blue-200);padding:8px}
+.wc-skip:hover{color:#fff}
+
+/* Track pakai scroll-snap native: bisa digeser jari, tanpa library. */
+.wc-track{flex:1;min-height:0;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;position:relative}
+.wc-slide{flex:0 0 100%;scroll-snap-align:center;display:flex;flex-direction:column;justify-content:center;
+          gap:var(--space-5);padding:0 28px}
+.wc-art{height:236px;display:flex;flex-direction:column;justify-content:center;gap:var(--space-2)}
+#scr-welcome h1{font-size:var(--fs-h2);font-weight:var(--fw-extrabold);letter-spacing:var(--ls-tight);line-height:var(--lh-tight)}
+#scr-welcome p{font-size:var(--fs-body);line-height:var(--lh-body);color:var(--blue-200);margin-top:var(--space-2)}
+
+.wc-foot{padding:0 28px var(--space-5);display:flex;flex-direction:column;gap:var(--space-4);flex-shrink:0;position:relative}
+.wc-dots{display:flex;gap:6px;justify-content:center}
+.wc-dots button{width:7px;height:7px;padding:0;border:none;border-radius:var(--radius-pill);
+                background:rgba(255,255,255,.3);cursor:pointer;transition:width .2s,background .2s}
+.wc-dots button.on{width:22px;background:var(--gold-400)}
+
+/* mini-preview: memakai ulang komponen app (kartu risiko, chat, timeline) */
+.wc-mini{background:var(--surface-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden}
+.wc-tag{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;background:rgba(255,255,255,.12);
+        border-radius:var(--radius-pill);padding:5px 11px;font-size:var(--fs-caption);font-weight:var(--fw-semibold);color:var(--gold-300)}
+
+/* Rasio asli logo 166x143, jadi cukup set width dan tingginya ikut sendiri. */
+.logo{background:var(--logo-url) center/contain no-repeat;aspect-ratio:166/143;flex-shrink:0}
+.logo.on-dark{filter:brightness(0) invert(1)}   /* logo navy jadi putih di latar gelap */
+
+.brandmark{display:flex;align-items:center;gap:10px}
+.brandmark .name{font-size:var(--fs-h4);font-weight:var(--fw-extrabold);letter-spacing:var(--ls-snug)}
+.brandmark .name b{color:var(--gold-400)}
+
+/* ============ home ============ */
+/* Header rata terang, sama seperti .topbar di Chat. Blok navy + kartu menimpa
+   pakai margin negatif sudah dibuang: navy-nya menyisakan potongan di samping
+   kartu dan terbaca seperti glitch. Navy sekarang jadi aksen, bukan latar. */
+#scr-home{background:var(--surface-page)}
+.home-head{background:var(--surface-card);border-bottom:1px solid var(--border-subtle);padding:0 var(--space-4);flex-shrink:0}
+.greet-block{padding-top:var(--space-1)}
+.greet-block .greet{font-size:var(--fs-body-sm);color:var(--text-muted)}
+.greet-block .h{font-size:var(--fs-h4);font-weight:var(--fw-bold);color:var(--text-strong);letter-spacing:var(--ls-snug);line-height:var(--lh-heading);margin-top:2px}
+.home-scroll{flex:1;overflow-y:auto;padding:var(--space-4);display:flex;flex-direction:column;gap:var(--space-4)}
+.quick{display:flex;gap:var(--space-3)}
+.quick .qbtn{flex:1;border:none;cursor:pointer;border-radius:var(--radius-lg);padding:var(--space-4) var(--space-3);display:flex;flex-direction:column;gap:var(--space-2);align-items:flex-start;font-family:var(--font-sans);box-shadow:var(--shadow-md);text-align:left}
+.quick .qbtn .t{font-size:var(--fs-body);font-weight:var(--fw-bold);line-height:var(--lh-heading)}
+.quick .qbtn .d{font-size:var(--fs-caption);font-weight:var(--fw-regular);opacity:.8;line-height:var(--lh-snug)}
+.qbtn.check{background:var(--surface-card);color:var(--text-strong)}
+.qbtn.report{background:var(--gold-400);color:var(--navy-900)}
+/* kartu pantauan: satu baris = satu entitas yang skornya naik sejak dicek */
+.watch-item{display:flex;align-items:center;gap:var(--space-3);width:100%;border:none;background:none;
+            padding:10px 0;cursor:pointer;font-family:var(--font-sans);text-align:left;
+            border-bottom:1px solid var(--border-subtle)}
+.watch-item:first-child{padding-top:0}
+.watch-item:last-child{padding-bottom:0;border-bottom:none}
+.watch-item:hover .t{color:var(--blue-600)}
+.watch-item .ico{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.watch-item .ico.danger{background:var(--danger-100);color:var(--danger-600)}
+.watch-item .ico.warning{background:var(--warning-100);color:var(--gold-600)}
+.watch-item .txt{flex:1;min-width:0}
+.watch-item .t{display:block;font-size:var(--fs-body-sm);font-weight:var(--fw-semibold);color:var(--text-strong)}
+.watch-item .d{display:block;font-size:var(--fs-caption);font-weight:var(--fw-regular);color:var(--text-muted);margin-top:1px;line-height:var(--lh-snug)}
+.watch-item .delta{font-family:var(--font-mono);font-size:var(--fs-body-sm);font-weight:var(--fw-bold);color:var(--danger-600);flex-shrink:0}
+
+.news-item{display:flex;gap:var(--space-3);padding:var(--space-3) 0;border-bottom:1px solid var(--border-subtle)}
+.news-item:last-child{border-bottom:none;padding-bottom:0}
+.news-item .thumb{width:40px;height:40px;border-radius:var(--radius-md);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.news-item .t{font-size:var(--fs-body-sm);font-weight:var(--fw-semibold);color:var(--text-strong);line-height:var(--lh-snug)}
+.news-item .m{font-size:var(--fs-caption);font-weight:var(--fw-regular);color:var(--text-muted);margin-top:var(--space-1)}
+
+/* ============ app header: tab atas + aksi (pola "Today | Community") ============ */
+.head-row{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);height:48px}
+.tabs{display:flex;gap:var(--space-5);align-self:stretch;align-items:center}
+.tab{background:none;border:none;padding:0;height:100%;cursor:pointer;font-family:var(--font-sans);
+     font-size:var(--fs-h4);font-weight:var(--fw-extrabold);letter-spacing:var(--ls-snug);
+     color:var(--text-faint);border-bottom:3px solid transparent;transition:color .15s}
+.tab.on{color:var(--text-strong);border-bottom-color:var(--blue-500)}
+.head-actions{display:flex;align-items:center;gap:var(--space-2)}
+.head-chip{display:flex;align-items:center;gap:5px;color:var(--text-strong);font-size:var(--fs-body-sm);font-weight:var(--fw-bold)}
+.bell{position:relative;width:36px;height:36px;border:none;background:none;color:var(--text-strong);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:var(--radius-md)}
+.bell:hover{background:var(--ink-100)}
+.bell .count{position:absolute;top:1px;right:1px;min-width:16px;height:16px;padding:0 4px;border-radius:var(--radius-pill);
+             background:var(--danger-500);color:#fff;font-size:10px;font-weight:var(--fw-bold);
+             display:flex;align-items:center;justify-content:center;line-height:1}
+
+/* ============ feed card (pola kartu komunitas: avatar + judul + waktu + kutipan + aksi) ============ */
+.feed-card{background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:var(--space-4)}
+.feed-head{display:flex;gap:10px;align-items:flex-start}
+.feed-ava{width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+          font-size:var(--fs-body-sm);font-weight:var(--fw-bold);background:var(--navy-100);color:var(--navy-900)}
+.feed-title{flex:1;min-width:0;font-size:var(--fs-body-sm);font-weight:var(--fw-regular);color:var(--text-body);line-height:var(--lh-snug)}
+.feed-title b{font-weight:var(--fw-bold);color:var(--text-strong)}
+.feed-meta{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.feed-time{font-size:var(--fs-caption);color:var(--text-faint)}
+.feed-dot{width:8px;height:8px;border-radius:50%;background:var(--success-500)}
+.quote{border-left:3px solid var(--border-strong);padding-left:var(--space-3);margin:var(--space-3) 0 0 50px}
+.quote .body{font-size:var(--fs-body-sm);color:var(--text-body);line-height:var(--lh-snug)}
+.quote .src{font-size:var(--fs-caption);font-weight:var(--fw-bold);color:var(--text-strong);margin-top:6px;font-family:var(--font-mono)}
+.feed-actions{display:flex;align-items:center;gap:var(--space-5);margin:var(--space-3) 0 0 50px}
+.act{display:flex;align-items:center;gap:5px;background:none;border:none;padding:0;cursor:pointer;
+     color:var(--text-muted);font-family:var(--font-sans);font-size:var(--fs-caption);font-weight:var(--fw-medium)}
+.act:hover{color:var(--blue-600)}
+.act.more{margin-left:auto}
+
+/* ============ chat ============ */
+#scr-chat{background:var(--surface-page)}
+.chat-scroll{flex:1;overflow-y:auto;padding:var(--space-4);display:flex;flex-direction:column;gap:var(--space-3)}
+.msg-bot{display:flex;gap:var(--space-2);align-items:flex-end;max-width:88%}
+.msg-bot .ava{width:30px;height:30px;border-radius:50%;background:var(--navy-900);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gold-400)}
+.msg-bot .bubble{background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:4px 16px 16px 16px;padding:10px var(--space-3);font-size:var(--fs-body-sm);font-weight:var(--fw-regular);line-height:var(--lh-snug);color:var(--text-body);box-shadow:var(--shadow-xs)}
+.msg-user{align-self:flex-end;background:var(--blue-500);color:#fff;border-radius:16px 16px 4px 16px;padding:10px var(--space-3);font-size:var(--fs-body-sm);font-weight:var(--fw-medium);line-height:var(--lh-snug);max-width:80%}
+.chips{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:2px;padding-left:38px}
+.chips button{border:1.5px solid var(--blue-200);background:var(--blue-50);color:var(--blue-700);border-radius:var(--radius-pill);padding:var(--space-2) var(--space-3);font-size:var(--fs-body-sm);font-weight:var(--fw-medium);font-family:var(--font-sans);cursor:pointer}
+.chips button:hover{background:var(--blue-100)}
+.chat-input{display:flex;gap:var(--space-2);align-items:center;padding:var(--space-3);border-top:1px solid var(--border-subtle);background:var(--surface-card);flex-shrink:0}
+.chat-input input{flex:1;height:44px;border-radius:var(--radius-pill);border:1.5px solid var(--border-strong);padding:0 var(--space-4);font-family:var(--font-sans);font-size:var(--fs-body-sm)}
+.chat-input input:focus{outline:none;border-color:var(--blue-500);box-shadow:var(--focus-ring)}
+.chat-input input:disabled{background:var(--ink-100);border-color:var(--border-subtle)}
+.sendbtn{width:44px;height:44px;border-radius:50%;border:none;background:var(--blue-500);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.sendbtn:disabled{background:var(--ink-300);cursor:not-allowed}
+
+/* risk result card in chat */
+.risk-card{margin-left:38px;max-width:88%;background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm)}
+.risk-head{padding:var(--space-3) var(--space-4);color:#fff}
+.risk-head.danger{background:var(--danger-500)}
+.risk-head.warning{background:var(--gold-500)}
+.risk-head.safe{background:var(--success-500)}
+.risk-head .score{font-size:var(--fs-h2);font-weight:var(--fw-extrabold);font-family:var(--font-mono);line-height:var(--lh-tight)}
+.risk-head .verdict{font-size:var(--fs-caption);font-weight:var(--fw-semibold);opacity:.95;line-height:var(--lh-snug)}
+.risk-body{padding:var(--space-3) var(--space-4);display:flex;flex-direction:column;gap:var(--space-2)}
+.kv{display:flex;justify-content:space-between;gap:var(--space-3);font-size:var(--fs-body-sm)}
+.kv .k{color:var(--text-muted);font-weight:var(--fw-regular)}
+.kv .v{font-weight:var(--fw-semibold);color:var(--text-strong);text-align:right;white-space:nowrap}
+/* daftar k/v bertingkat: dipakai dashboard & kartu detail supaya label panjang
+   tidak pernah membungkus seperti waktu masih 3 kolom sempit. */
+.kv-list{display:flex;flex-direction:column}
+.kv-list .kv{padding:10px 0;border-bottom:1px solid var(--border-subtle)}
+.kv-list .kv:first-child{padding-top:0}
+.kv-list .kv:last-child{padding-bottom:0;border-bottom:none}
+.meter{height:8px;border-radius:4px;background:var(--ink-100);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:4px}
+
+/* ============ detail entitas: hub pengetahuan kolektif atas satu entitas ============ */
+.ent-hero{padding:var(--space-5) var(--space-4);color:#fff;text-align:center}
+.ent-hero.danger{background:var(--danger-500)}
+.ent-hero.warning{background:var(--gold-500)}
+.ent-hero.safe{background:var(--success-500)}
+.ent-hero .type{font-size:var(--fs-overline);font-weight:var(--fw-bold);text-transform:uppercase;letter-spacing:var(--ls-overline);opacity:.85}
+.ent-hero .target{font-family:var(--font-mono);font-size:var(--fs-body-lg);font-weight:var(--fw-medium);margin-top:var(--space-1);word-break:break-all}
+.ent-hero .score{font-family:var(--font-mono);font-size:44px;font-weight:var(--fw-extrabold);line-height:1;margin-top:var(--space-3)}
+.ent-hero .verdict{font-size:var(--fs-body-sm);font-weight:var(--fw-bold);margin-top:var(--space-2)}
+.ent-hero .meter{background:rgba(255,255,255,.3);margin-top:var(--space-3)}
+.ent-hero .meter i{background:#fff}
+
+/* kartu ringkasan AI di detail entitas */
+.ai-card{background:var(--blue-50);border:1px solid var(--blue-100);border-radius:var(--radius-lg);padding:var(--space-4)}
+.ai-head{margin-bottom:var(--space-2)}
+.ai-body{font-size:var(--fs-body-sm);line-height:var(--lh-body);color:var(--text-body)}
+.ai-body b{color:var(--text-strong);font-weight:var(--fw-bold)}
+.ai-note{display:flex;gap:6px;margin-top:var(--space-3);padding-top:var(--space-3);
+         border-top:1px solid var(--blue-100);font-size:var(--fs-caption);
+         color:var(--blue-700);line-height:var(--lh-snug)}
+
+/* ============ laporan list ============ */
+.feed-ava.danger{background:var(--danger-100);color:var(--danger-600)}
+.feed-ava.success{background:var(--success-100);color:var(--success-600)}
+.feed-ava.info{background:var(--blue-100);color:var(--blue-700)}
+.rep-foot{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);margin:var(--space-3) 0 0 50px}
+.rep-loss{font-size:var(--fs-body-sm);font-weight:var(--fw-bold);color:var(--text-strong);font-family:var(--font-mono)}
+.filters{display:flex;gap:var(--space-2);padding:var(--space-3) var(--space-4);background:var(--surface-card);
+         border-bottom:1px solid var(--border-subtle);overflow-x:auto;flex-shrink:0}
+.filters button{border:1px solid var(--border-strong);background:var(--surface-card);color:var(--text-muted);
+                border-radius:var(--radius-pill);padding:6px var(--space-3);font-family:var(--font-sans);
+                font-size:var(--fs-caption);font-weight:var(--fw-medium);cursor:pointer;white-space:nowrap}
+.filters button.on{background:var(--navy-900);color:#fff;border-color:var(--navy-900)}
+/* select bawaan: di HP memunculkan picker native, tanpa JS dropdown sendiri */
+.sort-select{border:1px solid var(--border-strong);background:var(--surface-card);color:var(--text-strong);
+             border-radius:var(--radius-pill);padding:6px 26px 6px var(--space-3);font-family:var(--font-sans);
+             font-size:var(--fs-caption);font-weight:var(--fw-semibold);cursor:pointer;flex-shrink:0;
+             appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235C6B82' stroke-width='3' stroke-linecap='round'><polyline points='6 9 12 15 18 9'/></svg>");
+             background-repeat:no-repeat;background-position:right 9px center}
+.sort-select:focus{outline:none;border-color:var(--blue-500);box-shadow:var(--focus-ring)}
+.filters-sep{width:1px;align-self:stretch;background:var(--border-subtle);flex-shrink:0;margin:0 2px}
+
+/* empty state */
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--space-2);
+       padding:var(--space-8) var(--space-6);text-align:center}
+.empty .ico{width:64px;height:64px;border-radius:50%;background:var(--ink-100);display:flex;
+            align-items:center;justify-content:center;color:var(--text-faint);margin-bottom:var(--space-2)}
+.empty .t{font-size:var(--fs-body-lg);font-weight:var(--fw-bold);color:var(--text-strong)}
+.empty .d{font-size:var(--fs-body-sm);color:var(--text-muted);line-height:var(--lh-snug)}
+
+/* ============ profil ============ */
+/* Kartu profil horizontal (avatar kiri, identitas kanan): lebih hemat ruang dan
+   tidak memaksa blok berwarna di header seperti versi terpusat sebelumnya. */
+.prof-card{display:flex;align-items:center;gap:var(--space-3)}
+.prof-ava{width:56px;height:56px;border-radius:50%;background:var(--navy-900);display:flex;align-items:center;
+          justify-content:center;font-size:var(--fs-body-lg);font-weight:var(--fw-extrabold);color:var(--gold-400);flex-shrink:0}
+.prof-id{flex:1;min-width:0}
+.prof-name{font-size:var(--fs-body-lg);font-weight:var(--fw-bold);color:var(--text-strong);line-height:var(--lh-heading)}
+.prof-mail{font-size:var(--fs-body-sm);color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.menu-list{background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);overflow:hidden}
+.menu-item{display:flex;align-items:center;gap:var(--space-3);width:100%;border:none;background:none;
+           padding:var(--space-3) var(--space-4);cursor:pointer;font-family:var(--font-sans);text-align:left;
+           border-bottom:1px solid var(--border-subtle)}
+.menu-item:last-child{border-bottom:none}
+.menu-item:hover{background:var(--ink-50)}
+.menu-item .ico{color:var(--text-muted);display:flex;flex-shrink:0}
+.menu-item .lbl{flex:1;font-size:var(--fs-body-sm);font-weight:var(--fw-medium);color:var(--text-strong)}
+.menu-item .chev{color:var(--text-faint);flex-shrink:0}
+
+/* ============ report form / affidavit / status ============ */
+.form-scroll{flex:1;overflow-y:auto;padding:var(--space-4);display:flex;flex-direction:column;gap:var(--space-4)}
+.footer-cta{padding:var(--space-3) var(--space-4);border-top:1px solid var(--border-subtle);background:var(--surface-card);flex-shrink:0}
+.checkline{display:flex;gap:10px;align-items:flex-start;font-size:var(--fs-body-sm);font-weight:var(--fw-regular);line-height:var(--lh-snug);color:var(--text-body);cursor:pointer}
+.checkline input{width:18px;height:18px;margin-top:1px;accent-color:var(--blue-500);flex-shrink:0}
+.autofill-tag{display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-overline);font-weight:var(--fw-semibold);color:var(--blue-700);background:var(--blue-50);border-radius:var(--radius-pill);padding:2px 9px;margin-left:6px}
+.sign-box{border:1.5px dashed var(--border-strong);border-radius:var(--radius-md);padding:var(--space-3);text-align:center}
+.sign-box .preview{font-family:'Snell Roundhand','Segoe Script',cursive;font-size:var(--fs-h3);color:var(--navy-900);min-height:38px}
+.timeline .titem{display:flex;gap:var(--space-3)}
+.timeline .rail{display:flex;flex-direction:column;align-items:center}
+.timeline .dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.timeline .dot.done{background:var(--success-500);color:#fff}
+.timeline .dot.pending{background:var(--ink-200)}
+.timeline .dot.pending i{width:7px;height:7px;border-radius:50%;background:var(--ink-400)}
+.timeline .line{width:2px;flex:1;min-height:18px;background:var(--border-subtle)}
+.timeline .tt{font-size:var(--fs-body-sm);font-weight:var(--fw-semibold);color:var(--text-strong);line-height:var(--lh-snug)}
+.timeline .td{font-size:var(--fs-caption);font-weight:var(--fw-regular);color:var(--text-muted);line-height:var(--lh-snug)}
+</style>
+</head>
+<body>
+
+<!-- demo navigation (alat presentasi, bukan bagian app) -->
+<div class="demo-nav" id="demoNav"></div>
+
+<div class="stage">
+  <div class="phone">
+    <div class="phone-inner" id="phoneInner">
+      <div class="statusbar"><span>9:41</span><span style="display:flex;gap:5px;align-items:center"><span style="font-size:var(--fs-overline)">5G</span><span class="batt"><i></i></span></span></div>
+
+      <!-- ============ WELCOME: onboarding 3 slide ============ -->
+      <div class="screen" id="scr-welcome">
+        <div class="slash"></div>
+
+        <div class="wc-top">
+          <div class="brandmark" style="gap:9px">
+            <span class="logo on-dark" style="width:26px" role="img" aria-label="Logo JagaData"></span>
+            <span class="name" style="font-size:var(--fs-body)">Jaga<b>Data</b></span>
+          </div>
+          <button class="wc-skip" onclick="go('home')">Lewati</button>
+        </div>
+
+        <div class="wc-track" id="wcTrack">
+
+          <!-- slide 1: Cek -->
+          <div class="wc-slide">
+            <div class="wc-art">
+              <span class="wc-tag">Hasil pengecekan</span>
+              <div class="wc-mini" style="transform:rotate(-2deg)">
+                <div class="risk-head danger">
+                  <div class="verdict">BERBAHAYA: banyak laporan penipuan</div>
+                  <div class="score">95<span style="font-size:var(--fs-body-sm);font-weight:var(--fw-medium)">/100</span></div>
+                </div>
+                <div class="risk-body">
+                  <div class="meter"><i style="width:95%;background:var(--danger-500)"></i></div>
+                  <div class="kv"><span class="k">Rekening</span><span class="v mono">1234567890</span></div>
+                  <div class="kv"><span class="k">Pelapor unik</span><span class="v">61</span></div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h1>Cek dulu,<br>sebelum transfer.</h1>
+              <p>Periksa nomor telepon, rekening, link, atau e-wallet dalam hitungan detik.</p>
+            </div>
+          </div>
+
+          <!-- slide 2: Lapor -->
+          <div class="wc-slide">
+            <div class="wc-art">
+              <span class="wc-tag">Asisten JagaData</span>
+              <div class="msg-bot" style="max-width:100%">
+                <div class="ava"><span class="logo on-dark" style="width:16px"></span></div>
+                <div class="bubble">Kamu kehilangan uang lewat cara apa?</div>
+              </div>
+              <div class="msg-user" style="align-self:flex-end">Transfer bank</div>
+              <div class="wc-mini" style="padding:var(--space-3);display:flex;align-items:center;gap:10px">
+                <span class="autofill-tag" style="margin:0">✦ AI</span>
+                <span style="font-size:var(--fs-body-sm);color:var(--text-body)">Laporan resmi tersusun otomatis</span>
+              </div>
+            </div>
+            <div>
+              <h1>Lapor tanpa<br>ribet.</h1>
+              <p>Jawab beberapa pertanyaan, AI menyusun laporan resminya untukmu.</p>
+            </div>
+          </div>
+
+          <!-- slide 3: Pantau -->
+          <div class="wc-slide">
+            <div class="wc-art">
+              <span class="wc-tag">Perkembangan laporan</span>
+              <div class="wc-mini timeline" style="padding:var(--space-4)">
+                <div class="titem"><div class="rail"><div class="dot done"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="line"></div></div><div style="padding-bottom:14px"><div class="tt">Laporan diterima</div><div class="td">Berkas tersusun dari sesi chat</div></div></div>
+                <div class="titem"><div class="rail"><div class="dot done"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="line"></div></div><div style="padding-bottom:14px"><div class="tt">Diteruskan ke bank</div><div class="td">Rekening pelaku ditandai</div></div></div>
+                <div class="titem"><div class="rail"><div class="dot pending"><i></i></div></div><div><div class="tt">Verifikasi berwenang</div><div class="td">Estimasi 1x24 jam</div></div></div>
+              </div>
+            </div>
+            <div>
+              <h1>Pantau sampai<br>tuntas.</h1>
+              <p>Ikuti perkembangan laporanmu, dari bank sampai pihak berwenang.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="wc-foot">
+          <div class="wc-dots" id="wcDots"></div>
+          <button class="btn btn-lg btn-accent" id="wcNext" onclick="wcNext()">Lanjut &nbsp;→</button>
+        </div>
+      </div>
+
+      <!-- ============ HOME (Dashboard, News, Communities) ============ -->
+      <div class="screen" id="scr-home">
+        <div class="home-head">
+          <div class="head-row">
+            <div class="tabs">
+              <button class="tab on" id="tabBeranda" onclick="switchHomeTab('beranda')">Beranda</button>
+              <button class="tab" id="tabKomunitas" onclick="switchHomeTab('komunitas')">Komunitas</button>
+            </div>
+            <div class="head-actions">
+              <span class="head-chip" title="Entitas yang sudah kamu cek">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span class="head-chip-count">0</span>
+              </span>
+              <button class="bell" aria-label="Notifikasi, 3 belum dibaca" onclick="openNotif()">
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span class="count">3</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- pane: Beranda -->
+        <div class="home-scroll" id="paneBeranda">
+          <div class="greet-block">
+            <div class="greet">Selamat datang kembali 👋</div>
+            <div class="h">Lindungi transaksimu hari ini</div>
+          </div>
+          <div class="quick">
+            <button class="qbtn check" onclick="startChat('checking')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--blue-500)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <span class="t">Cek Dulu</span><span class="d">Periksa nomor, rekening, link, atau e-wallet</span>
+            </button>
+            <button class="qbtn report" onclick="startChat('report')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <span class="t">Lapor Penipuan</span><span class="d">Kena tipu? Laporkan sekarang</span>
+            </button>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-2);margin-bottom:var(--space-2)">
+              <div class="section-label">Pantauan kamu</div>
+              <div style="font-size:var(--fs-caption);color:var(--text-faint)" id="watchCount">-</div>
+            </div>
+            <div id="watchBody"></div>
+          </div>
+
+          <div class="card">
+            <div class="section-label" style="margin-bottom:4px">Berita &amp; Edukasi</div>
+            <div class="news-item">
+              <div class="thumb" style="background:var(--danger-100);color:var(--danger-600)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+              <div><div class="t">Waspada modus "salah transfer", pelaku minta refund lewat DANA</div><div class="m">Peringatan · 2 jam lalu</div></div>
+            </div>
+            <div class="news-item">
+              <div class="thumb" style="background:var(--blue-100);color:var(--blue-600)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+              <div><div class="t">Cara mengenali link phishing yang menyamar jadi promo e-commerce</div><div class="m">Edukasi · kemarin</div></div>
+            </div>
+            <div class="news-item">
+              <div class="thumb" style="background:var(--success-100);color:var(--success-600)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+              <div><div class="t">1.204 rekening penipu diblokir bank sepanjang Juni 2026</div><div class="m">Berita · 3 hari lalu</div></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- pane: Komunitas (feed laporan warga, dirender dari COMMUNITY) -->
+        <div id="komControlsWrap" style="display:none;flex-shrink:0">
+          <div class="filters">
+            <select class="sort-select" aria-label="Urutkan feed" onchange="setKomSort(this.value)">
+              <option value="rekomendasi">Rekomendasi</option>
+              <option value="terbaru">Terbaru</option>
+              <option value="trending">Trending</option>
+            </select>
+            <span class="filters-sep"></span>
+            <span id="komFilters" style="display:contents"></span>
+          </div>
+        </div>
+        <div class="home-scroll" id="paneKomunitas" style="display:none"></div>
+
+        <div class="bottomnav" data-nav="home"></div>
+      </div>
+
+      <!-- ============ LAPORAN (list, dirender dari REPORTS) ============ -->
+      <div class="screen" id="scr-laporan">
+        <div class="topbar">
+          <div class="spacer40"></div>
+          <div class="title">Laporan Saya</div>
+          <button class="iconbtn" aria-label="Notifikasi" onclick="openNotif()">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </button>
+        </div>
+        <div class="filters" id="repFilters"></div>
+        <div class="form-scroll" id="repList"></div>
+        <div class="bottomnav" data-nav="laporan"></div>
+      </div>
+
+      <!-- ============ DETAIL ENTITAS ============ -->
+      <div class="screen" id="scr-entitas">
+        <div class="topbar">
+          <button class="iconbtn" aria-label="Kembali" onclick="go(entFrom)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="title">Detail entitas</div>
+          <button class="iconbtn" aria-label="Bagikan peringatan" onclick="toast('Bagikan belum tersedia di prototype')">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </button>
+        </div>
+        <div class="form-scroll">
+          <div class="card" style="padding:0;overflow:hidden">
+            <div class="ent-hero" id="entHero">
+              <div class="type" id="entType">-</div>
+              <div class="target" id="entTarget">-</div>
+              <div class="score" id="entScore">-<span style="font-size:var(--fs-body);font-weight:var(--fw-medium)">/100</span></div>
+              <div class="meter"><i id="entMeter" style="width:0%"></i></div>
+              <div class="verdict" id="entVerdict">-</div>
+            </div>
+            <div style="padding:var(--space-4)">
+              <div class="kv-list">
+                <div class="kv"><span class="k">Pelapor unik</span><span class="v mono" id="entReports">-</span></div>
+                <div class="kv"><span class="k">Melampirkan bukti</span><span class="v mono" id="entProof">-</span></div>
+                <div class="kv"><span class="k">Konfirmasi bank</span><span class="v" id="entBank">-</span></div>
+                <div class="kv"><span class="k">Kategori</span><span class="v" id="entLabel">-</span></div>
+                <div class="kv"><span class="k">Status</span><span class="v" id="entStatus">-</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="entVerifNote"></div>
+          <div id="entAI"></div>
+
+          <div class="section-label" id="entListLabel">Laporan warga</div>
+          <div id="entList" style="display:flex;flex-direction:column;gap:var(--space-3)"></div>
+
+          <button class="btn btn-lg btn-secondary" id="entWatchBtn" onclick="toggleWatch()"></button>
+          <div id="entWatchHint" style="font-size:var(--fs-caption);color:var(--text-muted);text-align:center;margin-top:calc(var(--space-3) * -1);line-height:var(--lh-snug)"></div>
+          <button class="btn btn-lg btn-primary" onclick="reportEntity()">Laporkan entitas ini</button>
+        </div>
+      </div>
+
+      <!-- ============ PROFIL ============ -->
+      <div class="screen" id="scr-profil">
+        <div class="topbar">
+          <div class="spacer40"></div>
+          <div class="title">Profil</div>
+          <button class="iconbtn" aria-label="Ubah profil" onclick="toast('Belum tersedia di prototype')">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+          </button>
+        </div>
+        <div class="form-scroll">
+          <div class="card">
+            <div class="prof-card">
+              <div class="prof-ava">YA</div>
+              <div class="prof-id">
+                <div class="prof-name">Yusuf Adhika</div>
+                <div class="prof-mail">yusuf.adhika2012@gmail.com</div>
+              </div>
+              <span class="badge success"><span class="dot"></span>Terverifikasi</span>
+            </div>
+            <div style="height:1px;background:var(--border-subtle);margin:var(--space-3) 0"></div>
+            <div class="kv-list">
+              <div class="kv"><span class="k">Laporan dibuat</span><span class="v mono" id="profReports">3</span></div>
+              <div class="kv"><span class="k">Entitas dicek</span><span class="v mono">16</span></div>
+              <div class="kv"><span class="k">Pelaku diblokir</span><span class="v mono">2</span></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-label" style="margin:2px 0 10px">Data diri</div>
+            <div class="menu-list">
+              <button class="menu-item" onclick="toast('Belum tersedia di prototype')">
+                <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                <span class="lbl">Identitas pelapor</span>
+                <span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+              </button>
+              <button class="menu-item" onclick="toast('Belum tersedia di prototype')">
+                <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                <span class="lbl">Keamanan &amp; kata sandi</span>
+                <span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+              </button>
+              <button class="menu-item" onclick="openNotif()">
+                <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
+                <span class="lbl">Notifikasi</span>
+                <span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-label" style="margin:2px 0 10px">Lainnya</div>
+            <div class="menu-list">
+              <button class="menu-item" onclick="toast('Belum tersedia di prototype')">
+                <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+                <span class="lbl">Pusat bantuan</span>
+                <span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+              </button>
+              <button class="menu-item" onclick="go('welcome')">
+                <span class="ico" style="color:var(--danger-500)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+                <span class="lbl" style="color:var(--danger-600)">Keluar</span>
+                <span class="chev"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="bottomnav" data-nav="profil"></div>
+      </div>
+
+      <!-- ============ CHATBOT (menu-based, tanpa LLM) ============ -->
+      <div class="screen" id="scr-chat">
+        <div class="topbar">
+          <button class="iconbtn" onclick="go('home')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <div class="title">Asisten JagaData</div>
+          <div style="margin-right:8px"><span class="badge success"><span class="dot"></span>Online</span></div>
+        </div>
+        <div class="chat-scroll" id="chatScroll"></div>
+        <div class="chat-input">
+          <input id="chatField" placeholder="Pilih menu di atas…" disabled onkeydown="if(event.key==='Enter')sendInput()">
+          <button class="sendbtn" id="chatSend" disabled onclick="sendInput()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+        </div>
+      </div>
+
+      <!-- ============ REPORT FORM (autofilled oleh AI Agent Reporter) ============ -->
+      <div class="screen" id="scr-report">
+        <div class="topbar">
+          <button class="iconbtn" onclick="go('chat')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <div class="title">Detail Laporan</div>
+          <div class="spacer40"></div>
+        </div>
+        <div style="padding:12px 18px;background:var(--surface-card);border-bottom:1px solid var(--border-subtle)">
+          <div class="stepper">
+            <div class="step done"><span class="n">✓</span>Cerita</div><div class="bar"></div>
+            <div class="step cur"><span class="n">2</span>Data</div><div class="bar"></div>
+            <div class="step"><span class="n">3</span>Affidavit</div><div class="bar"></div>
+            <div class="step"><span class="n">4</span>Kirim</div>
+          </div>
+        </div>
+        <div class="form-scroll">
+          <div class="alert info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Form ini <b>diisi otomatis</b> oleh AI Reporter dari percakapanmu. Periksa dan lengkapi bila perlu.</span>
+          </div>
+          <div class="field"><label>Jenis entitas <span class="autofill-tag">✦ AI autofill</span></label><input id="fType" readonly></div>
+          <div class="field"><label>Identitas pelaku <span class="autofill-tag">✦ AI autofill</span></label><input id="fTarget" class="mono"></div>
+          <div class="field"><label>Perkiraan kerugian <span class="autofill-tag">✦ AI autofill</span></label><input id="fLoss"></div>
+          <div class="field">
+            <label>Kronologi lengkap <span class="autofill-tag">✦ AI autofill</span></label>
+            <textarea id="fStory" rows="4"></textarea>
+            <div class="hint">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Hanya dikirim ke bank dan pihak berwenang. Tidak tampil di komunitas.
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Ringkasan untuk komunitas <span class="autofill-tag">✦ AI autofill</span></label>
+            <textarea id="fPublic" rows="3"></textarea>
+            <div class="hint" style="color:var(--gold-600)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Terbit ke publik. Tulis modusnya saja, <b>jangan tulis nama, alamat, atau foto orang</b>.
+            </div>
+          </div>
+          <div class="field">
+            <label>Bukti pendukung</label>
+            <div style="display:flex;gap:10px">
+              <div style="width:74px;height:74px;border-radius:var(--radius-md);border:1.5px dashed var(--border-strong);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--text-muted);cursor:pointer">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                <span style="font-size:var(--fs-overline)">Tambah</span>
+              </div>
+              <div id="fProof" style="width:74px;height:74px;border-radius:var(--radius-md);background:var(--navy-100);display:none;align-items:center;justify-content:center;color:var(--navy-700)">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer-cta">
+          <button class="btn btn-lg btn-primary" onclick="go('affidavit')">Lanjut ke affidavit &nbsp;→</button>
+        </div>
+      </div>
+
+      <!-- ============ AFFIDAVIT (konfirmasi & tanda tangan) ============ -->
+      <div class="screen" id="scr-affidavit">
+        <div class="topbar">
+          <button class="iconbtn" onclick="go('report')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <div class="title">Affidavit</div>
+          <div class="spacer40"></div>
+        </div>
+        <div style="padding:12px 18px;background:var(--surface-card);border-bottom:1px solid var(--border-subtle)">
+          <div class="stepper">
+            <div class="step done"><span class="n">✓</span>Cerita</div><div class="bar"></div>
+            <div class="step done"><span class="n">✓</span>Data</div><div class="bar"></div>
+            <div class="step cur"><span class="n">3</span>Affidavit</div><div class="bar"></div>
+            <div class="step"><span class="n">4</span>Kirim</div>
+          </div>
+        </div>
+        <div class="form-scroll">
+          <div class="card">
+            <div class="section-label" style="margin-bottom:10px">Ringkasan laporan</div>
+            <div class="kv" style="margin-bottom:6px"><span class="k">Jenis</span><span class="v" id="sumType">-</span></div>
+            <div class="kv" style="margin-bottom:6px"><span class="k">Pelaku</span><span class="v mono" id="sumTarget">-</span></div>
+            <div class="kv"><span class="k">Kerugian</span><span class="v" id="sumLoss">-</span></div>
+          </div>
+          <div class="card" style="background:var(--cream-50);border-color:var(--cream-200, var(--gold-100))">
+            <div style="font-size:var(--fs-body-sm);line-height:var(--lh-body);color:var(--text-body)">Dengan ini saya menyatakan bahwa seluruh informasi yang saya sampaikan adalah <b>benar dan dapat dipertanggungjawabkan</b>. Saya memahami bahwa laporan palsu dapat dikenakan sanksi sesuai peraturan perundang-undangan yang berlaku, dan menyetujui data ini diteruskan ke <b>pihak terkait</b> (bank, penyedia e-wallet, dan aparat berwenang).</div>
+          </div>
+          <div class="field">
+            <label>Tanda tangan digital, ketik nama lengkapmu</label>
+            <div class="sign-box">
+              <div class="preview" id="signPreview">&nbsp;</div>
+              <input id="signName" placeholder="Nama lengkap" oninput="signChange()" style="border:none;border-top:1px solid var(--border-subtle);border-radius:0;text-align:center;background:transparent;width:100%;padding:8px 0;font-family:var(--font-sans);font-size:var(--fs-body);outline:none">
+            </div>
+          </div>
+          <label class="checkline"><input type="checkbox" id="agreeChk" onchange="signChange()"><span>Saya menyetujui pernyataan affidavit di atas.</span></label>
+        </div>
+        <div class="footer-cta">
+          <button class="btn btn-lg btn-navy" id="submitBtn" disabled onclick="submitReport()">Tanda tangani &amp; kirim laporan</button>
+        </div>
+      </div>
+
+      <!-- ============ STATUS ============ -->
+      <div class="screen" id="scr-status">
+        <div class="topbar">
+          <button class="iconbtn" aria-label="Kembali ke daftar laporan" onclick="go('laporan')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="title">Detail laporan</div>
+          <div class="spacer40"></div>
+        </div>
+        <div class="form-scroll">
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-3)">
+              <div>
+                <div class="mono" style="font-size:var(--fs-caption);color:var(--text-muted)" id="caseId">CASE-2026-0F3A91</div>
+                <div style="font-size:var(--fs-body);font-weight:var(--fw-bold);color:var(--text-strong);line-height:var(--lh-heading);margin-top:3px" id="caseTitle">Penipuan transfer bank</div>
+              </div>
+              <span class="badge info" id="caseBadge"><span class="dot"></span>Diproses</span>
+            </div>
+            <div style="height:1px;background:var(--border-subtle);margin:var(--space-3) 0"></div>
+            <div class="kv-list">
+              <div class="kv"><span class="k">Kerugian</span><span class="v mono" id="caseLoss">-</span></div>
+              <div class="kv"><span class="k">Dilaporkan</span><span class="v" id="caseTime">-</span></div>
+              <div class="kv"><span class="k">Pelaku</span><button class="v mono" id="caseTarget" style="background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;color:var(--blue-600)" onclick="openEntityFromCase()">-</button></div>
+            </div>
+            <div style="margin-top:var(--space-3)">
+              <div class="kv" style="margin-bottom:6px"><span class="k">Risk score</span><span class="v mono" id="caseScore">-</span></div>
+              <div class="meter"><i id="caseMeter" style="width:0%"></i></div>
+            </div>
+          </div>
+          <div class="section-label">Perkembangan</div>
+          <div class="card timeline">
+            <div class="titem"><div class="rail"><div class="dot done"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="line"></div></div><div style="padding-bottom:16px"><div class="tt">Laporan diterima</div><div class="td">AI Reporter menyusun berkas dari sesi chat</div></div></div>
+            <div class="titem"><div class="rail"><div class="dot done"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="line"></div></div><div style="padding-bottom:16px"><div class="tt">Risk scoring dihitung</div><div class="td">Skor risiko entitas diperbarui di database</div></div></div>
+            <div class="titem"><div class="rail"><div class="dot pending"><i></i></div><div class="line"></div></div><div style="padding-bottom:16px"><div class="tt">Diteruskan ke pihak terkait</div><div class="td">Bank / penyedia e-wallet, estimasi 1x24 jam</div></div></div>
+            <div class="titem"><div class="rail"><div class="dot pending"><i></i></div></div><div><div class="tt">Verifikasi pihak berwenang</div><div class="td">Menunggu konfirmasi</div></div></div>
+          </div>
+          <button class="btn btn-md btn-secondary" style="width:100%" onclick="go('laporan')">Lihat semua laporan</button>
+        </div>
+        <div class="bottomnav" data-nav="laporan"></div>
+      </div>
+
+      <div class="homebar"><i></i></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= dummy database (simulasi "Database" di flowchart) ================= */
+/* Entitas TIDAK menyimpan skor. Skor dihitung ulang dari sifat laporannya, karena
+   skor yang ditambah per-laporan bisa digenjot satu orang (terbukti: 12 ketukan
+   membawa rekening bersih ke 99/100).
+     pelaporUnik  : orang berbeda, bukan jumlah laporan. Ini yang dihitung.
+     denganBukti  : berapa di antaranya melampirkan bukti.
+     konfirmasiBank: dikonfirmasi pihak ketiga (bank/penyedia), sinyal terkuat.
+     pelaporIds   : untuk menolak laporan ganda dari orang yang sama. */
+const ME = 'user-ya';   // prototype: satu identitas pelapor
+
+const RISK_DB = {
+  'link':   { 'promo-shopee.xyz':   { label: 'Link phishing', verified: true,  konfirmasiBank: true,  pelaporUnik: 47, denganBukti: 38, pelaporIds: [] },
+              'bit.ly/hadiah-bri':  { label: 'Link phishing', verified: true,  konfirmasiBank: true,  pelaporUnik: 31, denganBukti: 24, pelaporIds: [] } },
+  'caller': { '081234567890': { label: 'Penipuan telepon',      verified: true,  konfirmasiBank: true,  pelaporUnik: 23, denganBukti: 18, pelaporIds: [] },
+              '085712340000': { label: 'Telemarketing agresif', verified: false, konfirmasiBank: false, pelaporUnik: 4,  denganBukti: 1,  pelaporIds: [] } },
+  'bank':   { '1234567890':   { label: 'Rekening penipuan',     verified: true,  konfirmasiBank: true,  pelaporUnik: 61, denganBukti: 48, pelaporIds: [] },
+              '9988776655':   { label: 'Klaim belum berbukti',  verified: false, konfirmasiBank: false, pelaporUnik: 2,  denganBukti: 0,  pelaporIds: [] } },
+  'ewallet':{ '089900112233': { label: 'E-wallet penipuan',     verified: false, konfirmasiBank: false, pelaporUnik: 12, denganBukti: 9,  pelaporIds: [] } },
+};
+
+/* Simpul "Fuzzy Logic" di flowchart, akhirnya terpakai sungguhan. Tiap sinyal
+   dinormalkan 0..1 lalu ditimbang. Sengaja TIDAK memakai jumlah laporan.
+
+   Sifat keamanan yang disengaja: tanpa konfirmasi pihak ketiga, skor maksimal
+   8+34+24 = 66, yaitu WASPADA dan tidak pernah BERBAHAYA. Jadi kerumunan warga
+   sendirian tidak akan pernah bisa memvonis siapa pun. */
+function computeScore(e) {
+  if (!e || !e.pelaporUnik) return 8;
+  const jangkauan = Math.min(1, Math.log10(1 + e.pelaporUnik) / Math.log10(26)); // jenuh ~25 pelapor unik
+  const bukti     = e.denganBukti / e.pelaporUnik;
+  return Math.round(Math.min(99,
+      8
+    + jangkauan * 34                 // banyak orang berbeda melapor
+    + jangkauan * bukti * 24         // ...dan mereka punya bukti (tak berarti tanpa jangkauan)
+    + (e.konfirmasiBank ? 33 : 0)    // konfirmasi pihak ketiga
+  ));
+}
+
+/* Link boleh mengandung tanda hubung (promo-shopee.xyz), nomor tidak (0812-3456 = 08123456). */
+const normKey = (type, v) => {
+  const s = String(v).trim().toLowerCase();
+  return type === 'link' ? s.replace(/\s/g, '') : s.replace(/[\s-]/g, '');
+};
+
+function getRisk(type, value) {
+  const e = (RISK_DB[type] || {})[normKey(type, value)];
+  if (!e) return { score: 8, pelaporUnik: 0, denganBukti: 0, konfirmasiBank: false,
+                   label: 'Belum ada laporan', level: 'safe', verified: false };
+  const score = computeScore(e);
+  // Entitas yang sudah pernah dilaporkan tidak pernah ditandai aman, sekecil apa pun skornya.
+  return { ...e, score, level: score >= 70 ? 'danger' : (e.pelaporUnik ? 'warning' : 'safe') };
+}
+
+const TYPE_LABEL = { link: 'Link / URL', caller: 'Nomor Telepon', bank: 'Rekening Bank', ewallet: 'E-Wallet' };
+
+/* Semua teks dari pengguna (cerita, nama, target) masuk innerHTML, jadi WAJIB
+   di-escape. Tanpa ini, cerita berisi <img onerror=...> benar-benar tereksekusi:
+   sudah diuji dan terbukti, bukan kemungkinan teoretis. */
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, m =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+
+/* ================= laporan milik user (list) ================= */
+const STATUS_META = {
+  proses:  { label: 'Diproses', tone: 'info' },
+  selesai: { label: 'Selesai',  tone: 'success' },
+  ditolak: { label: 'Ditolak',  tone: 'danger' },
+};
+const REPORTS = [
+  { id:'CASE-2026-0F3A91', type:'bank', target:'1234567890', title:'Penipuan transfer bank', score:95,
+    story:'Saya transfer Rp 4.250.000 untuk pembelian HP di marketplace. Barang tidak pernah dikirim dan pelaku memblokir kontak saya.',
+    publicStory:'Modus jual HP murah di marketplace. Setelah pembayaran diterima, barang tidak dikirim dan kontak diblokir.',
+    loss:'Rp 4,25 Jt', status:'proses', time:'2 hari', unread:true },
+  { id:'CASE-2026-7B2E10', type:'ewallet', target:'089900112233', title:'Penipuan e-wallet', score:78,
+    story:'Pelaku mengaku admin marketplace dan meminta kode OTP dengan alasan verifikasi. Saldo e-wallet langsung terkuras.',
+    publicStory:'Modus mengaku admin marketplace lalu meminta kode OTP dengan alasan verifikasi.',
+    loss:'Rp 850 Rb', status:'selesai', time:'1 mgg', unread:false },
+  { id:'CASE-2026-3C9D44', type:'link', target:'promo-shopee.xyz', title:'Link phishing', score:92,
+    story:'Saya klik link promo dari WhatsApp. Setelah memasukkan data login, saldo rekening saya berkurang.',
+    publicStory:'Modus tautan promo yang disebar lewat WhatsApp. Halaman login palsu, saldo terkuras setelah data dimasukkan.',
+    loss:'Rp 1,2 Jt', status:'ditolak', time:'3 mgg', unread:false },
+];
+
+/* ================= feed komunitas =================
+   jamLalu numerik, bukan string seperti '11 j': label tampilannya diturunkan dari
+   angka, supaya feed bisa benar-benar diurutkan. */
+const COMMUNITY = [
+  { who:'Budi S.', ini:'B', type:'caller', target:'081234567890', jamLalu:11, likes:24, comments:5, unread:true,
+    story:'Menelepon mengaku dari bank, minta kode OTP dengan alasan verifikasi ulang data nasabah. Suaranya meyakinkan dan tahu nama lengkap saya.' },
+  { who:'Sari W.', ini:'S', type:'bank', target:'1234567890', jamLalu:48, likes:61, comments:18, unread:true,
+    story:'Rekening ini dipakai jual iPhone murah di Facebook. Sudah transfer Rp 3 juta, penjual langsung hilang dan akunnya dihapus.' },
+  { who:'Andi P.', ini:'A', type:'link', target:'bit.ly/hadiah-bri', jamLalu:72, likes:38, comments:9, unread:false,
+    story:'Link ini menyamar jadi undian resmi BRI. Halamannya mirip sekali dengan aslinya, tapi domainnya bukan bri.co.id.' },
+  { who:'Maya L.', ini:'M', type:'ewallet', target:'089900112233', jamLalu:120, likes:12, comments:3, unread:false,
+    story:'Modus salah transfer. Pelaku kirim uang lalu minta dikembalikan ke e-wallet ini, padahal uang yang masuk hasil penipuan orang lain.' },
+  { who:'Rina K.', ini:'R', type:'bank', target:'1234567890', jamLalu:3, likes:9, comments:1, unread:true,
+    story:'Baru kena kemarin. Modusnya sama persis: jual HP murah, minta transfer duluan, habis itu diblokir.' },
+  { who:'Toni H.', ini:'T', type:'link', target:'promo-shopee.xyz', jamLalu:6, likes:74, comments:22, unread:true,
+    story:'Tautan promo palsu yang halamannya meniru halaman login resmi. Begitu data dimasukkan, saldo langsung ditarik.' },
+];
+
+const timeLabel = (jam) =>
+  jam < 1 ? 'baru' : jam < 24 ? `${Math.round(jam)} j` :
+  jam < 24 * 7 ? `${Math.round(jam / 24)} h` : `${Math.round(jam / 168)} mgg`;
+
+/* ================= navigation ================= */
+const SCREENS = [['welcome','Welcome'],['home','Home'],['chat','ChatBot'],['laporan','Laporan'],['status','Detail'],['entitas','Entitas'],['report','Form'],['affidavit','Affidavit'],['profil','Profil']];
+function go(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  document.getElementById('scr-' + name).classList.add('on');
+  if (name === 'affidavit') signChange();   // ringkasan & tombol kirim ikut isi form terkini
+  if (name === 'welcome') { wcTrack.scrollLeft = 0; wcSync(); }   // onboarding selalu mulai dari slide 1
+  document.querySelectorAll('#demoNav button').forEach(b => b.classList.toggle('on', b.dataset.s === name));
+}
+const nav = document.getElementById('demoNav');
+SCREENS.forEach(([k, l]) => {
+  const b = document.createElement('button');
+  b.textContent = l; b.dataset.s = k; b.onclick = () => k === 'chat' ? startChat() : go(k);
+  nav.appendChild(b);
+});
+
+/* ================= bottom nav: satu sumber, dirender ke tiap [data-nav] ================= */
+const NAV_ICON = {
+  home:    '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+  chat:    '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  laporan: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+  profil:  '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+};
+const NAV_ITEMS = [['home','Beranda'],['chat','Chat'],['laporan','Laporan'],['profil','Profil']];
+function renderNav() {
+  document.querySelectorAll('.bottomnav[data-nav]').forEach(el => {
+    const active = el.dataset.nav;
+    el.innerHTML = NAV_ITEMS.map(([k, label]) => `
+      <button class="${k === active ? 'on' : ''}" onclick="${k === 'chat' ? 'startChat()' : `go('${k}')`}">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${NAV_ICON[k]}</svg>${label}
+      </button>`).join('');
+  });
+}
+
+/* ================= welcome: carousel 3 slide =================
+   Geseran ditangani scroll-snap native (bisa swipe/drag), JS hanya menyelaraskan
+   titik indikator dan label tombol dengan posisi scroll. */
+const WC_SLIDES = 3;
+const wcTrack = document.getElementById('wcTrack');
+const wcDots  = document.getElementById('wcDots');
+const wcNextBtn = document.getElementById('wcNext');
+
+wcDots.innerHTML = Array.from({ length: WC_SLIDES }, (_, i) =>
+  `<button aria-label="Ke slide ${i + 1}" onclick="wcGo(${i})"></button>`).join('');
+
+/* clientWidth = 0 saat layar tersembunyi, dan 0/0 = NaN bikin titik indikator padam semua. */
+const wcIndex = () => wcTrack.clientWidth ? Math.round(wcTrack.scrollLeft / wcTrack.clientWidth) : 0;
+function wcSync() {
+  const i = wcIndex();
+  [...wcDots.children].forEach((d, n) => d.classList.toggle('on', n === i));
+  wcNextBtn.innerHTML = i === WC_SLIDES - 1 ? 'Masuk ke aplikasi &nbsp;→' : 'Lanjut &nbsp;→';
+}
+function wcGo(i) { wcTrack.scrollTo({ left: i * wcTrack.clientWidth, behavior: 'smooth' }); }
+function wcNext() {
+  const i = wcIndex();
+  if (i >= WC_SLIDES - 1) return go('home');
+  wcGo(i + 1);
+}
+wcTrack.addEventListener('scroll', wcSync, { passive: true });
+
+/* ================= toast ================= */
+let toastTimer;
+function toast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:absolute;left:50%;bottom:84px;transform:translateX(-50%);z-index:50;' +
+      'background:var(--navy-900);color:#fff;padding:10px 16px;border-radius:var(--radius-pill);' +
+      'font-size:var(--fs-body-sm);font-weight:var(--fw-medium);box-shadow:var(--shadow-lg);' +
+      'white-space:nowrap;opacity:0;transition:opacity .2s';
+    document.getElementById('phoneInner').appendChild(t);
+  }
+  t.textContent = msg;
+  requestAnimationFrame(() => { t.style.opacity = '1'; });
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.opacity = '0'; }, 1800);
+}
+function openNotif() { toast('Notifikasi belum tersedia di prototype'); }
+
+/* ================= tab atas Home (pola "Today | Community") ================= */
+function switchHomeTab(tab) {
+  const isBeranda = tab === 'beranda';
+  document.getElementById('tabBeranda').classList.toggle('on', isBeranda);
+  document.getElementById('tabKomunitas').classList.toggle('on', !isBeranda);
+  document.getElementById('paneBeranda').style.display = isBeranda ? 'flex' : 'none';
+  document.getElementById('paneKomunitas').style.display = isBeranda ? 'none' : 'flex';
+  document.getElementById('komControlsWrap').style.display = isBeranda ? 'none' : 'block';
+}
+
+/* ================= pantauan: entitas yang pernah dicek/dilaporkan =================
+   Menggantikan kartu "Dashboard Komunitas" yang angkanya hardcoded dan tak bisa
+   diapa-apakan. skorSaatDicek dibekukan saat pengecekan, lalu dibandingkan dengan
+   skor terkini, sehingga kenaikannya nyata dan bisa ditindaklanjuti. */
+const WATCHED = [
+  { type: 'bank',    target: '1234567890',   skorSaatDicek: 71, dicek: '2 minggu lalu' },
+  { type: 'ewallet', target: '089900112233', skorSaatDicek: 31, dicek: '9 hari lalu' },
+  { type: 'caller',  target: '085712340000', skorSaatDicek: 28, dicek: '5 hari lalu' },
+];
+
+const isWatched = (type, target) =>
+  WATCHED.some(w => normKey(w.type, w.target) === normKey(type, target));
+
+/* Mengembalikan true kalau benar-benar baru ditambahkan, supaya pemanggilnya bisa
+   memberi tahu user. Sebelumnya entitas masuk pantauan diam-diam, jadi konsep
+   "pantauan" tidak pernah terajarkan. */
+function watch(type, target, skor) {
+  if (isWatched(type, target)) return false;
+  WATCHED.push({ type, target, skorSaatDicek: skor, dicek: 'baru saja' });
+  return true;
+}
+
+function unwatch(type, target) {
+  const i = WATCHED.findIndex(w => normKey(w.type, w.target) === normKey(type, target));
+  if (i >= 0) WATCHED.splice(i, 1);
+}
+
+function renderWatch() {
+  const naik = WATCHED
+    .map(w => ({ ...w, sekarang: getRisk(w.type, w.target).score }))
+    .filter(w => w.sekarang > w.skorSaatDicek)
+    .sort((a, b) => (b.sekarang - b.skorSaatDicek) - (a.sekarang - a.skorSaatDicek));
+
+  /* Dulu pojoknya cuma tulis "3 entitas" padahal barisnya 2, karena yang skornya
+     tidak naik disembunyikan. Sekarang selisihnya dijelaskan, bukan didiamkan. */
+  document.getElementById('watchCount').textContent =
+    naik.length ? `${naik.length} dari ${WATCHED.length} naik` : `${WATCHED.length} dipantau`;
+  document.querySelectorAll('.head-chip-count').forEach(n => n.textContent = WATCHED.length);
+  const el = document.getElementById('watchBody');
+
+  if (!naik.length) {
+    el.innerHTML = `<div style="font-size:var(--fs-body-sm);color:var(--text-muted);line-height:var(--lh-snug)">
+      Tidak ada perubahan pada ${WATCHED.length} entitas yang kamu pantau. Kami kabari kalau skornya naik.
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = naik.map(w => {
+    const warna = getRisk(w.type, w.target).level === 'danger' ? 'danger' : 'warning';
+    return `
+    <button class="watch-item" onclick="openEntity('${esc(w.type)}','${esc(w.target)}','home')">
+      <span class="ico ${warna}">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+      </span>
+      <span class="txt">
+        <span class="t mono">${esc(w.target)}</span>
+        <span class="d">Naik dari ${w.skorSaatDicek} ke ${w.sekarang} sejak kamu cek ${esc(w.dicek)}</span>
+      </span>
+      <span class="delta">+${w.sekarang - w.skorSaatDicek}</span>
+    </button>`;
+  }).join('');
+}
+
+/* ================= feed komunitas ================= */
+const feedIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
+let komFilter = 'semua';
+let komSort   = 'rekomendasi';
+function setKomFilter(f) { komFilter = f; renderCommunity(); }
+function setKomSort(s)   { komSort = s;   renderCommunity(); }
+
+/* Trending = kecepatan interaksi, bukan total. Postingan lama bermassa besar tidak
+   boleh selamanya menutupi yang sedang ramai sekarang. */
+const skorTrending = (c) => (c.likes + c.comments * 2) / Math.max(1, c.jamLalu);
+
+/* Rekomendasi = yang paling berarti buat kamu: entitas yang kamu pantau naik ke
+   atas, lalu yang skor risikonya tinggi, baru interaksinya. */
+const skorRekomendasi = (c) => {
+  const dipantau = WATCHED.some(w => normKey(w.type, w.target) === normKey(c.type, c.target));
+  return (dipantau ? 1000 : 0) + getRisk(c.type, c.target).score * 2 + skorTrending(c);
+};
+
+function renderCommunity() {
+  const KATEGORI = [['semua', 'Semua'], ...Object.entries(TYPE_LABEL)];
+  document.getElementById('komFilters').innerHTML = KATEGORI.map(([k, l]) => {
+    const n = k === 'semua' ? COMMUNITY.length : COMMUNITY.filter(c => c.type === k).length;
+    return `<button class="${k === komFilter ? 'on' : ''}" onclick="setKomFilter('${k}')">${esc(l)} (${n})</button>`;
+  }).join('');
+
+  let list = komFilter === 'semua' ? COMMUNITY.slice() : COMMUNITY.filter(c => c.type === komFilter);
+  if (komSort === 'terbaru')       list.sort((a, b) => a.jamLalu - b.jamLalu);
+  else if (komSort === 'trending') list.sort((a, b) => skorTrending(b) - skorTrending(a));
+  else                             list.sort((a, b) => skorRekomendasi(b) - skorRekomendasi(a));
+
+  const pane = document.getElementById('paneKomunitas');
+  if (!list.length) {
+    pane.innerHTML = `<div class="empty">
+      <div class="ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+      <div class="t">Belum ada laporan</div>
+      <div class="d">Belum ada laporan warga untuk kategori ini.</div>
+    </div>`;
+    return;
+  }
+
+  pane.innerHTML = list.map((c) => {
+    const r = getRisk(c.type, c.target);
+    const dipantau = WATCHED.some(w => normKey(w.type, w.target) === normKey(c.type, c.target));
+    return `
+    <div class="feed-card">
+      <div class="feed-head">
+        <div class="feed-ava">${esc(c.ini)}</div>
+        <div class="feed-title"><b>${esc(c.who)}</b> melaporkan ${TYPE_LABEL[c.type].toLowerCase()} <b>${esc(c.target)}</b></div>
+        <div class="feed-meta">
+          <span class="feed-time">${timeLabel(c.jamLalu)}</span>
+          ${c.unread ? '<span class="feed-dot"></span>' : ''}
+        </div>
+      </div>
+      <div class="quote">
+        <div class="body">${esc(c.story)}</div>
+        <button class="src" style="background:none;border:none;padding:0;cursor:pointer;font-family:var(--font-mono);text-decoration:underline"
+                onclick="openEntity('${esc(c.type)}','${esc(c.target)}','home')">${esc(c.target)}</button>
+        <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+          <span class="badge ${r.verified ? 'success' : 'neutral'}"><span class="dot"></span>${r.verified ? 'Terverifikasi' : 'Klaim warga'}</span>
+          ${dipantau ? '<span class="badge info"><span class="dot"></span>Kamu pantau</span>' : ''}
+        </div>
+      </div>
+      <div class="feed-actions">
+        <button class="act" onclick="toast('Terima kasih, laporan ini kamu dukung')">
+          ${feedIcon}<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>${esc(c.likes)}
+        </button>
+        <button class="act" onclick="toast('Komentar belum tersedia di prototype')">
+          ${feedIcon}<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${esc(c.comments)}
+        </button>
+        <button class="act more" aria-label="Opsi lain" onclick="toast('Opsi belum tersedia di prototype')">
+          ${feedIcon}<circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ================= detail entitas =================
+   Hub yang menyatukan apa yang sebelumnya berserakan: skor dari RISK_DB, laporan
+   warga dari COMMUNITY, dan laporan milik user dari REPORTS, semuanya untuk satu
+   entitas yang sama. */
+let entFrom = 'home';        // layar asal, supaya tombol kembali tidak menebak
+let entCurrent = null;       // entitas yang sedang dibuka
+
+/* ponytail: "AI" di sini pencocokan pola, bukan LLM. Cukup untuk prototype dan
+   jujur soal sumbernya; ganti dengan model asli saat backend ada.
+   Sumbernya laporan warga, BUKAN komentar: komentar belum ada di prototype. */
+const MODUS = [
+  { pola: /otp|kode verifikasi|mengaku (dari )?(bank|admin)|data pribadi/i,
+    teks: 'meminta kode OTP atau data pribadi sambil mengaku pihak resmi' },
+  { pola: /tidak (pernah )?dikirim|barang tidak|jual .*(murah|hp|iphone)|diblokir/i,
+    teks: 'menjual barang murah lalu tidak mengirimnya setelah dibayar' },
+  { pola: /investasi|keuntungan tinggi|dana tidak (bisa|dapat) ditarik/i,
+    teks: 'menawarkan investasi dengan janji keuntungan tinggi' },
+  { pola: /tautan|link|phishing|halaman .*(palsu|resmi)|login/i,
+    teks: 'menyebar tautan palsu yang meniru halaman resmi' },
+  { pola: /salah transfer|dikembalikan/i,
+    teks: 'modus salah transfer lalu meminta pengembalian dana' },
+];
+
+function summarizeEntity(laporan, r) {
+  if (!laporan.length) return null;
+  const cocok = MODUS
+    .map(m => ({ teks: m.teks, n: laporan.filter(l => m.pola.test(l.story)).length }))
+    .filter(m => m.n > 0)
+    .sort((a, b) => b.n - a.n);
+  if (!cocok.length) return null;
+
+  const utama = cocok[0];
+  let s = `Dari <b>${laporan.length} laporan warga</b>, modus yang paling sering muncul: <b>${utama.teks}</b>`;
+  s += cocok[1] ? `. Sebagian juga menyebut pelaku ${cocok[1].teks}.` : '.';
+  if (r.konfirmasiBank) s += ' Pola ini sudah dikonfirmasi pihak bank atau penyedia layanan.';
+  else s += ' Belum ada konfirmasi dari bank atau penyedia layanan, jadi perlakukan sebagai peringatan awal.';
+  return s;
+}
+
+function openEntity(type, target, from) {
+  entFrom = from || 'home';
+  entCurrent = { type, target };
+  const r = getRisk(type, target);
+  const key = normKey(type, target);
+
+  const hero = document.getElementById('entHero');
+  hero.className = 'ent-hero ' + r.level;
+  document.getElementById('entType').textContent = TYPE_LABEL[type];
+  document.getElementById('entTarget').textContent = target;
+  document.getElementById('entScore').innerHTML =
+    `${r.score}<span style="font-size:var(--fs-body);font-weight:var(--fw-medium)">/100</span>`;
+  document.getElementById('entMeter').style.width = r.score + '%';
+  document.getElementById('entVerdict').textContent =
+    { danger: 'BERBAHAYA', warning: 'WASPADA', safe: 'BELUM ADA LAPORAN' }[r.level];
+  document.getElementById('entReports').textContent = r.pelaporUnik;
+  document.getElementById('entProof').textContent = `${r.denganBukti} dari ${r.pelaporUnik}`;
+  document.getElementById('entBank').innerHTML = r.konfirmasiBank
+    ? '<span style="color:var(--success-600);font-weight:var(--fw-semibold)">Ya</span>'
+    : '<span style="color:var(--text-muted)">Belum</span>';
+  document.getElementById('entLabel').textContent = r.label;
+  document.getElementById('entStatus').innerHTML = r.verified
+    ? '<span class="badge success"><span class="dot"></span>Terverifikasi</span>'
+    : '<span class="badge neutral"><span class="dot"></span>Klaim warga</span>';
+
+  /* Label jujur: app ini menuduh entitas milik orang nyata, jadi pembaca berhak
+     tahu mana yang sudah dikonfirmasi dan mana yang baru klaim. */
+  document.getElementById('entVerifNote').innerHTML = r.verified
+    ? `<div class="alert info">
+         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+         <span>Sudah <b>dikonfirmasi</b> pihak bank atau penyedia layanan, bukan hanya klaim warga.</span>
+       </div>`
+    : `<div class="alert warning">
+         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+         <span><b>Belum diverifikasi.</b> Ini laporan warga, perlakukan sebagai peringatan awal, bukan tuduhan final.
+         <button class="act" style="margin-top:6px;color:var(--gold-600);text-decoration:underline" onclick="toast('Alur keberatan belum tersedia di prototype')">Saya pemilik, ajukan keberatan</button></span>
+       </div>`;
+
+  // laporan warga + laporan sendiri, digabung untuk entitas ini
+  const dari = [
+    ...COMMUNITY.filter(c => normKey(c.type, c.target) === key)
+                .map(c => ({ who: c.who, ini: c.ini, time: c.time, story: c.story })),
+    // Yang tampil publik adalah versi publiknya, bukan berkas resmi.
+    ...REPORTS.filter(x => normKey(x.type, x.target) === key)
+              .map(x => ({ who: 'Kamu', ini: 'YA', time: x.time,
+                           story: x.publicStory || x.story, milikSendiri: true })),
+  ];
+
+  /* Ringkasan AI diletakkan SETELAH daftar terkumpul, karena memang diturunkan
+     dari isi laporan, bukan teks tetap. */
+  const ringkasan = summarizeEntity(dari, r);
+  document.getElementById('entAI').innerHTML = ringkasan ? `
+    <div class="ai-card">
+      <div class="ai-head">
+        <span class="autofill-tag" style="margin:0">✦ Ringkasan AI</span>
+      </div>
+      <div class="ai-body">${ringkasan}</div>
+      <div class="ai-note">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Dirangkum otomatis dari laporan warga. Bisa keliru, baca laporan aslinya di bawah.
+      </div>
+    </div>` : '';
+
+  document.getElementById('entListLabel').textContent = `Laporan warga (${dari.length})`;
+  document.getElementById('entList').innerHTML = dari.length ? dari.map(d => `
+    <div class="feed-card">
+      <div class="feed-head">
+        <div class="feed-ava"${d.milikSendiri ? ' style="background:var(--gold-100);color:var(--gold-600)"' : ''}>${esc(d.ini)}</div>
+        <div class="feed-title"><b>${esc(d.who)}</b>${d.milikSendiri ? ' melaporkan entitas ini' : ''}</div>
+        <div class="feed-meta"><span class="feed-time">${esc(d.time)}</span></div>
+      </div>
+      <div class="quote"><div class="body">${esc(d.story)}</div></div>
+    </div>`).join('') : `
+    <div class="card" style="text-align:center;color:var(--text-muted);font-size:var(--fs-body-sm)">
+      Belum ada laporan warga untuk entitas ini.
+    </div>`;
+
+  go('entitas');
+}
+
+/* Mengikuti pola startChat: buka layar chat, bersihkan riwayat, baru mulai alur,
+   lalu lompati pertanyaan jenis & pelaku karena keduanya sudah diketahui. */
+async function reportEntity() {
+  if (!entCurrent) return;
+  const { type, target } = entCurrent;
+  go('chat');
+  chatScroll.innerHTML = '';
+  session = { type, target, mode: 'report' };
+  disableInput();
+  await botSay(`Oke, kita laporkan <span class="mono">${esc(target)}</span>. Aku butuh beberapa info tambahan ya.`);
+  askStory();
+}
+
+/* ================= list laporan ================= */
+const FILTERS = [['semua','Semua'],['proses','Diproses'],['selesai','Selesai'],['ditolak','Ditolak']];
+let repFilter = 'semua';
+function setRepFilter(f) { repFilter = f; renderReports(); }
+function renderReports() {
+  document.getElementById('repFilters').innerHTML = FILTERS.map(([k, l]) => {
+    const n = k === 'semua' ? REPORTS.length : REPORTS.filter(r => r.status === k).length;
+    return `<button class="${k === repFilter ? 'on' : ''}" onclick="setRepFilter('${k}')">${l} (${n})</button>`;
+  }).join('');
+
+  const list = REPORTS.filter(r => repFilter === 'semua' || r.status === repFilter);
+  const el = document.getElementById('repList');
+  document.getElementById('profReports').textContent = REPORTS.length;
+
+  if (!list.length) {
+    el.innerHTML = `
+      <div class="empty">
+        <div class="ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div class="t">Belum ada laporan di sini</div>
+        <div class="d">Laporan dengan status ini belum ada. Coba filter lain, atau buat laporan baru lewat asisten.</div>
+        <button class="btn btn-md btn-primary" style="margin-top:var(--space-3)" onclick="startChat('report')">Buat laporan</button>
+      </div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(r => {
+    const st = STATUS_META[r.status];
+    return `
+    <div class="feed-card" style="cursor:pointer" onclick="openReport('${esc(r.id)}')">
+      <div class="feed-head">
+        <div class="feed-ava ${st.tone}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="feed-title">
+          <b>${esc(r.title)}</b>
+          <div class="mono" style="font-size:var(--fs-caption);color:var(--text-muted);margin-top:2px">${esc(r.id)}</div>
+        </div>
+        <div class="feed-meta">
+          <span class="feed-time">${esc(r.time)}</span>
+          ${r.unread ? '<span class="feed-dot"></span>' : ''}
+        </div>
+      </div>
+      <div class="quote"><div class="body">${esc(r.story)}</div><div class="src">${esc(r.target)}</div></div>
+      <div class="rep-foot">
+        <span class="badge ${st.tone}"><span class="dot"></span>${st.label}</span>
+        <span class="rep-loss">${esc(r.loss)}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let caseCurrent = null;   // laporan yang sedang dibuka, agar Pelaku bisa dibuka ke entitasnya
+function openEntityFromCase() {
+  if (caseCurrent) openEntity(caseCurrent.type, caseCurrent.target, 'status');
+}
+
+function openReport(id) {
+  const r = REPORTS.find(x => x.id === id);
+  if (!r) return;
+  r.unread = false;
+  caseCurrent = r;
+  const st = STATUS_META[r.status];
+  document.getElementById('caseId').textContent = r.id;
+  document.getElementById('caseTitle').textContent = r.title;
+  document.getElementById('caseLoss').textContent = r.loss;
+  document.getElementById('caseTime').textContent = r.time === 'baru saja' ? 'Baru saja' : r.time + ' lalu';
+  document.getElementById('caseTarget').textContent = r.target;
+  document.getElementById('caseScore').textContent = r.score + '/100';
+  const meter = document.getElementById('caseMeter');
+  meter.style.width = r.score + '%';
+  meter.style.background = r.score >= 70 ? 'var(--danger-500)' : r.score >= 40 ? 'var(--gold-500)' : 'var(--success-500)';
+  document.getElementById('caseBadge').className = 'badge ' + st.tone;
+  document.getElementById('caseBadge').innerHTML = `<span class="dot"></span>${st.label}`;
+  renderReports();
+  go('status');
+}
+
+/* ================= chatbot engine (menu-based, tanpa LLM, sesuai flowchart) ================= */
+const chatScroll = document.getElementById('chatScroll');
+const chatField  = document.getElementById('chatField');
+const chatSend   = document.getElementById('chatSend');
+let session = {};          // menyimpan jawaban user = "Session Chat Log"
+let inputHandler = null;   // aktif saat bot menunggu ketikan bebas
+
+function botSay(text, delay = 350) {
+  return new Promise(res => setTimeout(() => {
+    const w = document.createElement('div');
+    w.className = 'msg-bot';
+    w.innerHTML = `<div class="ava"><span class="logo on-dark" style="width:16px"></span></div><div class="bubble">${text}</div>`;
+    chatScroll.appendChild(w); scrollChat(); res();
+  }, delay));
+}
+function userSay(text) {
+  const d = document.createElement('div');
+  d.className = 'msg-user'; d.textContent = text;
+  chatScroll.appendChild(d); scrollChat();
+}
+function showChips(options) {
+  clearChips();
+  const c = document.createElement('div');
+  c.className = 'chips'; c.id = 'activeChips';
+  options.forEach(([label, fn]) => {
+    const b = document.createElement('button');
+    b.textContent = label;
+    b.onclick = () => { clearChips(); userSay(label); fn(label); };
+    c.appendChild(b);
+  });
+  chatScroll.appendChild(c); scrollChat();
+}
+function clearChips() { document.getElementById('activeChips')?.remove(); }
+function scrollChat() { chatScroll.scrollTop = chatScroll.scrollHeight; }
+function enableInput(placeholder, handler) {
+  chatField.disabled = false; chatSend.disabled = false;
+  chatField.placeholder = placeholder; chatField.focus();
+  inputHandler = handler;
+}
+function disableInput() {
+  chatField.disabled = true; chatSend.disabled = true;
+  chatField.placeholder = 'Pilih menu di atas…'; chatField.value = '';
+  inputHandler = null;
+}
+function sendInput() {
+  const v = chatField.value.trim();
+  if (!v || !inputHandler) return;
+  const h = inputHandler; disableInput(); userSay(v); h(v);
+}
+
+/* --- alur utama: "is checking?" --- */
+async function startChat(intent) {
+  go('chat');
+  chatScroll.innerHTML = ''; session = {}; disableInput();
+  await botSay('Halo! Aku asisten JagaData 🛡️ Mau ngapain hari ini?');
+  if (intent === 'checking') return menuChecking();
+  if (intent === 'report')  return menuReport();
+  showChips([
+    ['🔍 Cek dulu (checking)', menuChecking],
+    ['🚨 Lapor penipuan', menuReport],
+  ]);
+}
+
+/* --- Menu 1: Checking --- */
+async function menuChecking() {
+  session.mode = 'checking';
+  await botSay('Siap. Apa yang mau kamu periksa?');
+  showChips(Object.entries(TYPE_LABEL).map(([k, v]) => [v, () => askCheckValue(k)]));
+}
+async function askCheckValue(type) {
+  session.type = type;
+  const contoh = { link: 'promo-shopee.xyz', caller: '081234567890', bank: '1234567890', ewallet: '089900112233' }[type];
+  await botSay(`Oke, ketik ${TYPE_LABEL[type].toLowerCase()} yang mau dicek. (coba: <span class="mono">${contoh}</span>)`);
+  enableInput(`Masukkan ${TYPE_LABEL[type].toLowerCase()}…`, v => showRiskResult(type, v));
+}
+async function showRiskResult(type, value) {
+  session.target = value;
+  await botSay('Sebentar, aku cek ke database… 🔎', 300);
+  const r = getRisk(type, value);
+  session.risk = r;
+  watch(type, value, r.score);   // yang dicek otomatis masuk pantauan
+  renderWatch();
+  const verdict = { danger: 'BERBAHAYA: banyak laporan penipuan', warning: 'WASPADA: ada indikasi mencurigakan', safe: 'BELUM ADA LAPORAN, tetap hati-hati' }[r.level];
+  const color   = { danger: 'var(--danger-500)', warning: 'var(--gold-500)', safe: 'var(--success-500)' }[r.level];
+  setTimeout(() => {
+    const card = document.createElement('div');
+    card.className = 'risk-card';
+    card.innerHTML = `
+      <div class="risk-head ${r.level}">
+        <div class="verdict">${verdict}</div>
+        <div class="score">${r.score}<span style="font-size:var(--fs-body-sm);font-weight:var(--fw-medium)">/100</span></div>
+      </div>
+      <div class="risk-body">
+        <div class="meter"><i style="width:${r.score}%;background:${color}"></i></div>
+        <div class="kv"><span class="k">Entitas</span><span class="v mono">${esc(value)}</span></div>
+        <div class="kv"><span class="k">Jenis</span><span class="v">${TYPE_LABEL[type]}</span></div>
+        <div class="kv"><span class="k">Pelapor unik</span><span class="v">${esc(r.pelaporUnik)}</span></div>
+        <div class="kv"><span class="k">Konfirmasi bank</span><span class="v">${r.konfirmasiBank ? 'Ya' : 'Belum'}</span></div>
+        <div class="kv"><span class="k">Kategori</span><span class="v">${r.label}</span></div>
+      </div>`;
+    chatScroll.appendChild(card); scrollChat();
+    setTimeout(async () => {
+      await botSay('Mau lanjut apa?');
+      showChips([
+        ['📄 Lihat detail entitas', () => openEntity(type, value, 'chat')],
+        ['🔍 Cek yang lain', menuChecking],
+        ['🚨 Laporkan entitas ini', () => menuReport(true)],
+        ['✅ Selesai', async () => { await botSay('Sip! Jaga terus transaksimu ya 👋'); }],
+      ]);
+    }, 500);
+  }, 700);
+}
+
+/* --- Menu 2: Report (AI Agent Reporter, disimulasikan) --- */
+async function menuReport(keepTarget) {
+  session.mode = 'report';
+  if (keepTarget && session.target) {
+    await botSay(`Oke, kita laporkan <span class="mono">${esc(session.target)}</span>. Aku butuh beberapa info tambahan ya.`);
+    return askStory();
+  }
+  await botSay('Aku bantu susun laporannya. Penipuannya lewat apa?');
+  showChips(Object.entries(TYPE_LABEL).map(([k, v]) => [v, () => askReportTarget(k)]));
+}
+async function askReportTarget(type) {
+  session.type = type;
+  await botSay(`Ketik ${TYPE_LABEL[type].toLowerCase()} pelakunya.`);
+  enableInput(`${TYPE_LABEL[type]} pelaku…`, v => { session.target = v; askStory(); });
+}
+async function askStory() {
+  await botSay('Kejadiannya seperti apa?');
+  showChips([
+    ['Transfer tapi barang tak dikirim', s => askLoss(s)],
+    ['Investasi bodong', s => askLoss(s)],
+    ['Ditelepon mengaku pihak bank', s => askLoss(s)],
+    ['Klik link, saldo terkuras', s => askLoss(s)],
+  ]);
+}
+async function askLoss(story) {
+  session.story = story;
+  await botSay('Kira-kira berapa kerugiannya? Perkiraan tidak masalah.');
+  showChips([
+    ['< Rp 1 juta', l => askProof(l)],
+    ['Rp 1–5 juta', l => askProof(l)],
+    ['> Rp 5 juta', l => askProof(l)],
+  ]);
+}
+async function askProof(loss) {
+  session.loss = loss;
+  await botSay('Terakhir, kamu punya bukti? (screenshot chat, bukti transfer, dll.)');
+  showChips([
+    ['Ya, ada', p => finishIntake(p)],
+    ['Sebagian', p => finishIntake(p)],
+    ['Tidak ada', p => finishIntake(p)],
+  ]);
+}
+async function finishIntake(proof) {
+  session.proof = proof;
+  await botSay('Terima kasih 🙏 <b>AI Reporter</b> sedang menyusun laporan resmimu dari percakapan ini…');
+  setTimeout(() => { fillReportForm(); go('report'); }, 1200);
+}
+
+/* --- AI Agent Reporter: autofill form dari session chat log --- */
+function fillReportForm() {
+  const t = session.type || 'bank';
+  document.getElementById('fType').value   = TYPE_LABEL[t];
+  document.getElementById('fTarget').value = session.target || '';
+  document.getElementById('fLoss').value   = session.loss || '';
+  /* Dua audiens, dua teks. Yang resmi boleh menyebut kerugian & detail; yang publik
+     sengaja hanya modus operandi, tanpa identitas siapa pun, supaya feed komunitas
+     tidak jadi kanal doksing. */
+  const berkasResmi = {
+    'Transfer tapi barang tak dikirim': `Saya melakukan transfer kepada pelaku (${session.target || '-'}) untuk pembelian barang secara online, namun setelah pembayaran barang tidak pernah dikirim dan pelaku tidak dapat dihubungi.`,
+    'Investasi bodong': `Saya diajak berinvestasi oleh pelaku (${session.target || '-'}) dengan janji keuntungan tinggi. Setelah dana disetor, pelaku menghilang dan dana tidak dapat ditarik kembali.`,
+    'Ditelepon mengaku pihak bank': `Saya dihubungi oleh pelaku (${session.target || '-'}) yang mengaku sebagai pihak bank dan diminta memberikan data pribadi/OTP, yang kemudian digunakan untuk menguras rekening saya.`,
+    'Klik link, saldo terkuras': `Saya mengeklik tautan (${session.target || '-'}) yang tampak seperti promo resmi. Setelah memasukkan data, saldo rekening/e-wallet saya terkuras.`,
+  };
+  const ringkasanPublik = {
+    'Transfer tapi barang tak dikirim': 'Modus jual barang online. Setelah pembayaran diterima, barang tidak dikirim dan kontak diblokir.',
+    'Investasi bodong': 'Modus tawaran investasi dengan janji keuntungan tinggi. Setelah dana disetor, dana tidak bisa ditarik.',
+    'Ditelepon mengaku pihak bank': 'Modus menelepon mengaku pihak bank, lalu meminta data pribadi atau kode OTP dengan alasan verifikasi.',
+    'Klik link, saldo terkuras': 'Modus tautan yang menyamar jadi promo resmi. Setelah data login dimasukkan, saldo terkuras.',
+  };
+  document.getElementById('fStory').value  = berkasResmi[session.story] || (session.story || '');
+  document.getElementById('fPublic').value = ringkasanPublik[session.story] || (session.story || '');
+  document.getElementById('fProof').style.display = session.proof && session.proof !== 'Tidak ada' ? 'flex' : 'none';
+}
+
+/* --- affidavit --- */
+function signChange() {
+  const name = document.getElementById('signName').value.trim();
+  document.getElementById('signPreview').textContent = name || ' ';
+  document.getElementById('submitBtn').disabled = !(name && document.getElementById('agreeChk').checked);
+  // sinkronkan ringkasan
+  document.getElementById('sumType').textContent   = document.getElementById('fType').value || '-';
+  document.getElementById('sumTarget').textContent = document.getElementById('fTarget').value || '-';
+  document.getElementById('sumLoss').textContent   = document.getElementById('fLoss').value || '-';
+}
+function submitReport() {
+  const type   = session.type || 'bank';
+  const target = document.getElementById('fTarget').value.trim();
+  const loss   = document.getElementById('fLoss').value || '-';
+  const berbukti = session.proof && session.proof !== 'Tidak ada';
+
+  /* Node "Update Database" di flowchart. Yang dicatat adalah PELAPOR UNIK, bukan
+     jumlah laporan, lalu skornya dihitung ulang oleh computeScore(). */
+  const key = normKey(type, target);
+  const db = RISK_DB[type] || (RISK_DB[type] = {});
+  const e = db[key] || (db[key] = { label: 'Laporan baru', verified: false, konfirmasiBank: false,
+                                    pelaporUnik: 0, denganBukti: 0, pelaporIds: [] });
+
+  // 1 laporan per entitas per akun: inilah yang mematahkan genjot skor berulang.
+  if (e.pelaporIds.includes(ME)) {
+    toast('Kamu sudah pernah melaporkan entitas ini');
+    return;
+  }
+  e.pelaporIds.push(ME);
+  e.pelaporUnik += 1;
+  if (berbukti) e.denganBukti += 1;
+
+  const id = 'CASE-2026-' + Math.random().toString(16).slice(2, 8).toUpperCase();
+  REPORTS.unshift({
+    id, type, target, loss, score: computeScore(e),
+    title: 'Penipuan ' + TYPE_LABEL[type].toLowerCase(),
+    story: document.getElementById('fStory').value,              // berkas resmi
+    publicStory: document.getElementById('fPublic').value,        // versi publik
+    status: 'proses', time: 'baru saja', unread: true,
+  });
+
+  watch(type, target, computeScore(e));
+  renderWatch();
+  toast(berbukti ? 'Laporan terkirim, skor diperbarui' : 'Terkirim. Tanpa bukti, bobotnya kecil');
+  openReport(id);
+}
+
+/* start */
+renderNav();
+renderWatch();
+renderCommunity();
+renderReports();
+go('welcome');
+</script>
+</body>
+</html>

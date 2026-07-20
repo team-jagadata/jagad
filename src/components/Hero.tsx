@@ -2,6 +2,7 @@ import Link from "next/link";
 import PhoneChat from "./PhoneChat";
 import Reveal from "./Reveal";
 import HeroDataViz from "./HeroDataViz";
+import PrototypePreview from "./PrototypePreview";
 
 export default function Hero() {
   return (
@@ -52,6 +53,8 @@ export default function Hero() {
             <PhoneChat />
           </Reveal>
         </div>
+
+        <PrototypePreview />
 
         <HeroDataViz />
       </div>

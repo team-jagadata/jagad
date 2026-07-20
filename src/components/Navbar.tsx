@@ -13,6 +13,7 @@ const navLinks = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const cancelClose = () => {
@@ -25,11 +26,22 @@ export default function Navbar() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        setMobileOpen(false);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  // Kunci scroll body selama menu mobile terbuka.
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-navy-50 bg-white/85 backdrop-blur-md">
@@ -113,6 +125,33 @@ export default function Navbar() {
           >
             Lapor sekarang
           </Link>
+
+          {/* Toggle menu mobile */}
+          <button
+            type="button"
+            aria-label={mobileOpen ? "Tutup menu" : "Buka menu"}
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen((v) => !v)}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-navy-900 transition-colors hover:bg-navy-50 md:hidden"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+              {mobileOpen ? (
+                <path
+                  d="M6 6l12 12M18 6 6 18"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                />
+              ) : (
+                <path
+                  d="M4 7h16M4 12h16M4 17h16"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                />
+              )}
+            </svg>
+          </button>
         </div>
 
         {/* Panel mega-menu */}
@@ -164,6 +203,97 @@ export default function Navbar() {
               </Link>
             ))}
           </div>
+        </div>
+
+        {/* Backdrop menu mobile */}
+        <div
+          onClick={() => setMobileOpen(false)}
+          aria-hidden
+          className={`fixed inset-0 z-40 bg-navy-900/20 backdrop-blur-sm transition-opacity duration-200 md:hidden ${
+            mobileOpen ? "opacity-100" : "pointer-events-none opacity-0"
+          }`}
+        />
+
+        {/* Panel menu mobile */}
+        <div
+          aria-hidden={!mobileOpen}
+          className={`absolute left-0 right-0 top-full z-50 max-h-[calc(100dvh-4.5rem)] origin-top overflow-y-auto border-b border-navy-50 bg-white px-4 pb-6 pt-2 shadow-xl shadow-navy-900/10 transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none md:hidden ${
+            mobileOpen
+              ? "translate-y-0 opacity-100"
+              : "pointer-events-none -translate-y-2 opacity-0"
+          }`}
+        >
+          <div className="flex flex-col">
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                tabIndex={mobileOpen ? 0 : -1}
+                onClick={() => setMobileOpen(false)}
+                className="rounded-lg px-3 py-3 text-base font-medium text-ink-600 transition-colors hover:bg-navy-50 hover:text-navy-900"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          <p className="mt-4 px-3 font-mono text-xs uppercase tracking-widest text-ink-400">
+            Fitur
+          </p>
+          <div className="mt-2 flex flex-col gap-1">
+            {fitur.map((item) => (
+              <Link
+                key={item.title}
+                href={`/fitur/${item.slug}`}
+                tabIndex={mobileOpen ? 0 : -1}
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-navy-50"
+              >
+                <span
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white"
+                  style={{ backgroundImage: iconGradient(item.color) }}
+                >
+                  <span className="h-[18px] w-[18px]">{item.icon}</span>
+                </span>
+                <span className="min-w-0 flex-1 text-sm font-semibold text-navy-900">
+                  {item.title}
+                </span>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden
+                  className="shrink-0 text-ink-400"
+                >
+                  <path
+                    d="m9 6 6 6-6 6"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Link>
+            ))}
+          </div>
+
+          <Link
+            href="#"
+            tabIndex={mobileOpen ? 0 : -1}
+            onClick={() => setMobileOpen(false)}
+            className="mt-4 block rounded-lg px-3 py-3 text-base font-semibold text-navy-900 transition-colors hover:bg-navy-50"
+          >
+            Masuk
+          </Link>
+          <Link
+            href="/#lapor"
+            tabIndex={mobileOpen ? 0 : -1}
+            onClick={() => setMobileOpen(false)}
+            className="mt-2 block rounded-full bg-navy-900 px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-navy-700"
+          >
+            Lapor sekarang
+          </Link>
         </div>
       </nav>
     </header>

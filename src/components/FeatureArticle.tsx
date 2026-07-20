@@ -12,9 +12,9 @@ function SectionBlock({ section, color }: { section: Section; color: string }) {
   const heading = "heading" in section ? section.heading : undefined;
 
   return (
-    <section className="mt-12 first:mt-0">
+    <section className="mt-10 first:mt-0 sm:mt-12">
       {heading && (
-        <h2 className="text-2xl font-bold tracking-tight text-navy-900">
+        <h2 className="text-xl font-bold tracking-tight text-navy-900 sm:text-2xl">
           {heading}
         </h2>
       )}
@@ -27,6 +27,40 @@ function SectionBlock({ section, color }: { section: Section; color: string }) {
             </p>
           ))}
         </div>
+      )}
+
+      {section.kind === "stats" && (
+        <>
+          {section.intro && (
+            <p className="mt-4 text-base leading-relaxed text-ink-600">
+              {section.intro}
+            </p>
+          )}
+          <dl className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {section.items.map((stat) => (
+              <div
+                key={stat.label}
+                className="rounded-xl border border-navy-50 bg-white p-5"
+              >
+                {/* Angka = IBM Plex Mono, sesuai design system JAGAD (data pakai mono). */}
+                <dd
+                  className="font-mono text-2xl font-medium tracking-tight tabular-nums break-words sm:text-3xl"
+                  style={{ color }}
+                >
+                  {stat.value}
+                </dd>
+                <dt className="mt-2 text-sm leading-relaxed text-ink-600">
+                  {stat.label}
+                </dt>
+                {stat.note && (
+                  <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-ink-400">
+                    {stat.note}
+                  </p>
+                )}
+              </div>
+            ))}
+          </dl>
+        </>
       )}
 
       {section.kind === "list" && (
@@ -112,7 +146,7 @@ export default function FeatureArticle({
   content: FeatureContent;
 }) {
   return (
-    <article className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
+    <article className="mx-auto max-w-3xl px-5 py-12 sm:px-6 sm:py-20">
       <Reveal>
         <Link
           href="/#fitur"
@@ -150,29 +184,35 @@ export default function FeatureArticle({
           >
             {meta.tag}
           </span>
-          <h1 className="mt-3 text-4xl font-extrabold tracking-tight text-navy-900 sm:text-5xl">
+          <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-balance text-navy-900 sm:text-4xl md:text-5xl">
             {meta.title}
           </h1>
-          <p className="mt-5 text-lg leading-relaxed text-ink-600">
+          <p className="mt-4 text-base leading-relaxed text-ink-600 sm:mt-5 sm:text-lg">
             {content.lede}
           </p>
         </header>
       </Reveal>
 
-      <Reveal delay={80} className="mt-14">
+      <Reveal delay={80} className="mt-12 sm:mt-14">
         {content.sections.map((section, i) => (
           <SectionBlock key={i} section={section} color={meta.color} />
         ))}
+
+        {content.sources && (
+          <p className="mt-12 border-t border-navy-50 pt-6 font-mono text-xs leading-relaxed text-ink-400">
+            {content.sources}
+          </p>
+        )}
       </Reveal>
 
-      <Reveal delay={120} className="mt-16 border-t border-navy-50 pt-10">
-        <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <Reveal delay={120} className="mt-14 border-t border-navy-50 pt-10 sm:mt-16">
+        <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-lg font-bold text-navy-900">
             Siap mencoba JAGAD?
           </p>
           <Link
             href="/#lapor"
-            className="rounded-full bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy-700"
+            className="w-full rounded-full bg-navy-900 px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-navy-700 sm:w-auto sm:py-2.5"
           >
             Lapor sekarang
           </Link>
