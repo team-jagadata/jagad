@@ -119,12 +119,13 @@ export default function Navbar() {
           >
             Masuk
           </Link>
-          <Link
-            href="/#lapor"
+          <button
+            type="button"
+            aria-label="Download aplikasi Android"
             className="rounded-full bg-navy-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-navy-700"
           >
-            Lapor sekarang
-          </Link>
+            Download
+          </button>
 
           {/* Toggle menu mobile */}
           <button
@@ -286,14 +287,14 @@ export default function Navbar() {
           >
             Masuk
           </Link>
-          <Link
-            href="/#lapor"
+          <button
+            type="button"
             tabIndex={mobileOpen ? 0 : -1}
-            onClick={() => setMobileOpen(false)}
-            className="mt-2 block rounded-full bg-navy-900 px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-navy-700"
+            aria-label="Download aplikasi Android"
+            className="mt-2 block w-full rounded-full bg-navy-900 px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-navy-700"
           >
-            Lapor sekarang
-          </Link>
+            Download
+          </button>
         </div>
       </nav>
     </header>

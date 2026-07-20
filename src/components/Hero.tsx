@@ -28,12 +28,22 @@ export default function Hero() {
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="#"
-                className="rounded-xl bg-navy-900 px-6 py-3.5 text-center font-semibold text-white transition-colors hover:bg-navy-700"
+              <button
+                type="button"
+                aria-label="Download aplikasi Android"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-navy-900 px-6 py-3.5 text-center font-semibold text-white transition-colors hover:bg-navy-700"
               >
-                Mulai laporan
-              </Link>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden
+                >
+                  <path d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.14-.52.38.38 0 0 0-.52.14l-1.87 3.23A11.43 11.43 0 0 0 12 8.02c-1.77 0-3.44.4-4.9 1.13L5.23 5.92a.38.38 0 0 0-.52-.14.38.38 0 0 0-.14.52L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.13 1.13 0 1 1 0-2.25 1.13 1.13 0 0 1 0 2.25zm10 0a1.13 1.13 0 1 1 0-2.25 1.13 1.13 0 0 1 0 2.25z" />
+                </svg>
+                Download
+              </button>
               <Link
                 href="#cara-kerja"
                 className="rounded-xl border border-navy-900/15 bg-white px-6 py-3.5 text-center font-semibold text-navy-900 transition-colors hover:bg-navy-50"
