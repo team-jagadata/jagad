@@ -92,9 +92,22 @@ body{font-family:var(--font-sans);background:var(--ink-100);color:var(--text-bod
 
 /* ============ screens ============ */
 .screen{flex:1;min-height:0;display:none;flex-direction:column}
-.screen.on{display:flex;animation:screenIn .7s cubic-bezier(.22,.61,.36,1)}
-@keyframes screenIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.screen.on{animation:none}}
+.screen.on{display:flex;animation:screenIn .42s cubic-bezier(.22,.61,.36,1)}
+@keyframes screenIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+
+/* Layar yang ditinggalkan dilepas dari alur flex lalu ditumpuk persis di area
+   layar (di antara statusbar 44px dan homebar 20px) supaya bisa silang-pudar
+   dengan layar masuk. Tanpa ini frame berkedip kosong satu tarikan napas,
+   karena display:none memutus layar lama seketika sementara layar baru masih
+   mulai dari opacity 0. */
+.screen.out{display:flex;position:absolute;left:0;right:0;top:44px;bottom:20px;
+  pointer-events:none;animation:screenOut .3s ease-in forwards}
+@keyframes screenOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-8px) scale(.99)}}
+
+@media (prefers-reduced-motion:reduce){
+  .screen.on{animation:none}
+  .screen.out{display:none;animation:none}
+}
 
 /* ============ shared components (gaya cal.diy: rapi, border tipis, radius terkontrol) ============ */
 .btn{display:flex;align-items:center;justify-content:center;gap:var(--space-2);border:none;cursor:pointer;font-family:var(--font-sans);font-weight:var(--fw-semibold);border-radius:10px;transition:filter .15s}
@@ -1254,8 +1267,27 @@ const timeLabel = (jam) =>
 /* ================= navigation ================= */
 const SCREENS = [['welcome','Welcome'],['login','Login'],['otp','OTP'],['home','Home'],['chat','ChatBot'],['cari','Cari'],['laporan','Laporan'],['status','Detail'],['entitas','Entitas'],['post','Post'],['tambah','Tambah'],['aktivitas','Aktivitas'],['pelapor','Pelapor'],['berita','Berita'],['notif','Notif'],['keberatan','Keberatan'],['report','Form'],['affidavit','Affidavit'],['sukses','Sukses'],['profil','Profil']];
 function go(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
-  document.getElementById('scr-' + name).classList.add('on');
+  const next = document.getElementById('scr-' + name);
+  const cur = document.querySelector('.screen.on');
+
+  /* Pindah layar hanya kalau memang berganti: memanggil go() ke layar yang
+     sedang terbuka (mis. tombol nav yang sudah aktif) tidak boleh memutar
+     ulang animasi masuk. Efek samping di bawah tetap jalan. */
+  if (cur !== next) {
+    if (cur) {
+      cur.classList.remove('on');
+      cur.classList.add('out');
+      /* Satu timer per elemen: kalau layar ini dibuka lagi sebelum pudarnya
+         selesai, timer lama dibatalkan supaya .out tidak tertinggal menempel
+         dan menutupi layar aktif. */
+      clearTimeout(cur._outTimer);
+      cur._outTimer = setTimeout(() => cur.classList.remove('out'), 300);
+    }
+    clearTimeout(next._outTimer);
+    next.classList.remove('out');
+    next.classList.add('on');
+  }
+
   if (name === 'affidavit') signChange();   // ringkasan & tombol kirim ikut isi form terkini
   if (name === 'welcome') { wcTrack.scrollLeft = 0; wcSync(); }   // onboarding selalu mulai dari slide 1
   document.querySelectorAll('#demoNav button').forEach(b => b.classList.toggle('on', b.dataset.s === name));
@@ -1437,7 +1469,13 @@ function wcSync() {
   [...wcDots.children].forEach((d, n) => d.classList.toggle('on', n === i));
   wcNextBtn.innerHTML = i === WC_SLIDES - 1 ? 'Buat akun &nbsp;→' : 'Lanjut &nbsp;→';
 }
-function wcGo(i) { wcTrack.scrollTo({ left: i * wcTrack.clientWidth, behavior: 'smooth' }); }
+const REDUCED_MOTION = matchMedia('(prefers-reduced-motion: reduce)');
+function wcGo(i) {
+  wcTrack.scrollTo({
+    left: i * wcTrack.clientWidth,
+    behavior: REDUCED_MOTION.matches ? 'auto' : 'smooth',
+  });
+}
 function wcNext() {
   const i = wcIndex();
   if (i >= WC_SLIDES - 1) return go('register');   // onboarding selesai -> buat akun
@@ -2419,23 +2457,126 @@ renderReports();
 badgeUnread();
 go('welcome');
 
-/* ===== Autoplay: menelusuri seluruh layar tiap 2,5 detik (transisi beranimasi),
-   berjalan terus tanpa henti.
-   Kunci layar: Detail=status, Form=report, ChatBot=chat.
-   Layar alur otentikasi (login/register/otp/sukses) sengaja dilewati. ===== */
+/* ===== Tur otomatis =========================================================
+   Alat presentasi untuk landing page, bukan bagian dari app.
+
+   Urutannya mengikuti perjalanan nyata pengguna, bukan daftar layar: kenalan →
+   cek sebelum bayar → melapor → memantau → komunitas → akun. Tiap langkah punya
+   jatah waktunya sendiri, karena layar padat (form, affidavit) butuh lebih lama
+   dibaca daripada layar ringkas (cari, tambah).
+
+   Layar alur otentikasi (login/register/otp/sukses) sengaja dilewati: itu
+   keadaan sesaat di tengah alur, yang kalau ditonton lepas dari konteks hanya
+   terlihat seperti jalan buntu. ========================================== */
 (function () {
-  const LOOP = [
-    'welcome', 'home', 'chat', 'laporan', 'status', 'keberatan',
-    'entitas', 'report', 'affidavit', 'cari', 'berita', 'post',
-    'pelapor', 'tambah', 'notif', 'aktivitas', 'profil'
+  const TOUR = [
+    /* Kenalan */
+    { s: 'welcome',   ms: 5200 },   // 3 slide onboarding diputar di dalam jatah ini
+    { s: 'home',      ms: 3000 },
+    /* Cek dulu sebelum bayar */
+    { s: 'chat',      ms: 5200 },   // beri ruang sapaan bot selesai "diketik"
+    { s: 'cari',      ms: 2400 },
+    { s: 'entitas',   ms: 3400 },
+    { s: 'keberatan', ms: 2600 },
+    /* Melapor */
+    { s: 'report',    ms: 3400 },
+    { s: 'affidavit', ms: 3400 },
+    /* Memantau */
+    { s: 'laporan',   ms: 2800 },
+    { s: 'status',    ms: 3200 },
+    /* Komunitas */
+    { s: 'berita',    ms: 2600 },
+    { s: 'post',      ms: 2600 },
+    { s: 'tambah',    ms: 2400 },
+    { s: 'pelapor',   ms: 2400 },
+    /* Akun */
+    { s: 'notif',     ms: 2400 },
+    { s: 'aktivitas', ms: 2600 },
+    { s: 'profil',    ms: 2800 },
   ];
-  let i = 0;
-  setInterval(() => {
-    i = (i + 1) % LOOP.length;
-    const s = LOOP[i];
-    // scr-chat kosong sampai startChat() jalan, jadi layar chat dibuka lewat startChat
-    if (s === 'chat') startChat(); else go(s);
-  }, 2500);
+
+  let idx = 0;
+  let stepTimer = null;
+  let slideTimers = [];
+  let idleTimer = null;
+
+  /* Alasan tur berhenti dikumpulkan dalam satu himpunan supaya dua sebab yang
+     tumpang tindih tidak saling membatalkan — pengguna yang menyentuh layar
+     lalu pindah tab dan kembali tidak boleh langsung direbut lagi oleh tur. */
+  const holds = new Set();
+
+  function clearTimers() {
+    clearTimeout(stepTimer); stepTimer = null;
+    slideTimers.forEach(clearTimeout); slideTimers = [];
+  }
+
+  /* Onboarding punya 3 slide dalam satu layar. Tanpa ini tur hanya pernah
+     memperlihatkan slide pertama lalu pindah, dan 2 slide sisanya tak pernah
+     terlihat sama sekali. */
+  function playWelcome() {
+    slideTimers.push(setTimeout(() => wcGo(1), 1600));
+    slideTimers.push(setTimeout(() => wcGo(2), 3300));
+  }
+
+  function step() {
+    const cur = TOUR[idx];
+    /* scr-chat kosong sampai startChat() mengisinya, jadi layar chat dibuka
+       lewat startChat() — bukan go() — supaya tur tidak memamerkan chat kosong. */
+    if (cur.s === 'chat') startChat(); else go(cur.s);
+    if (cur.s === 'welcome') playWelcome();
+
+    stepTimer = setTimeout(() => {
+      idx = (idx + 1) % TOUR.length;
+      step();
+    }, cur.ms);
+  }
+
+  function hold(reason) {
+    holds.add(reason);
+    clearTimers();
+  }
+  function release(reason) {
+    holds.delete(reason);
+    if (!holds.size && !stepTimer) step();   // stepTimer null = tur memang sedang diam
+  }
+
+  /* Tab tersembunyi: timer diperlambat browser, jadi tur yang tetap jalan hanya
+     menumpuk langkah dan muncul kembali di layar acak saat tab dibuka lagi. */
+  document.addEventListener('visibilitychange', () => {
+    document.hidden ? hold('hidden') : release('hidden');
+  });
+
+  /* Prototipe ini dipasang sebagai iframe di landing page. document.hidden tidak
+     tahu apa-apa soal posisi iframe di halaman induk, jadi induknya yang
+     mengabari saat frame masuk/keluar layar. Kalau pesan itu tidak pernah datang
+     (mis. file dibuka langsung), tur tetap jalan seperti biasa. */
+  window.addEventListener('message', e => {
+    if (e.source !== window.parent) return;
+    if (e.data === 'jd:tour-pause') hold('offscreen');
+    if (e.data === 'jd:tour-play') release('offscreen');
+  });
+
+  /* Panggung ini bisa disentuh, dan teks di landing page memang mengajak
+     mengetuk. Tur yang tetap menyeret layar tiap beberapa detik akan melawan
+     pengguna, jadi begitu ada interaksi tur mundur dan baru melanjutkan setelah
+     diam — dari layar yang sedang dibuka, bukan meloncat ke tempat lain. */
+  function onInteract() {
+    hold('user');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+      const on = document.querySelector('.screen.on');
+      const at = on ? TOUR.findIndex(t => 'scr-' + t.s === on.id) : -1;
+      if (at >= 0) idx = at;
+      release('user');
+    }, 8000);
+  }
+  /* wheel sengaja tidak ikut: menggulir halaman induk dengan kursor kebetulan
+     berada di atas frame ini bukan tanda niat memakai prototipe, dan event-nya
+     beruntun — turnya jadi ikut membeku tiap kali orang lewat menggulir. */
+  ['pointerdown', 'keydown', 'touchstart'].forEach(ev =>
+    document.addEventListener(ev, onInteract, { passive: true, capture: true }));
+
+  step();
 })();
 </script>
 </body>

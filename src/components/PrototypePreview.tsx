@@ -24,6 +24,17 @@ export default function PrototypePreview() {
     setScale(Math.min(1, w / DESIGN_WIDTH));
   }, []);
 
+  /* Keadaan "terlihat" terakhir disimpan, bukan sekadar dikirim sekali: iframe
+     ini lazy-load, jadi pengamatan pertama hampir selalu terjadi sebelum ada
+     yang mendengarkan di dalam sana dan pesannya hilang begitu saja. */
+  const visibleRef = useRef(false);
+  const postTourState = useCallback(() => {
+    frameRef.current?.contentWindow?.postMessage(
+      visibleRef.current ? "jd:tour-play" : "jd:tour-pause",
+      window.location.origin,
+    );
+  }, []);
+
   // Ukur tinggi konten prototipe setelah iframe termuat (same-origin).
   const onLoad = useCallback(() => {
     const doc = frameRef.current?.contentDocument;
@@ -32,7 +43,8 @@ export default function PrototypePreview() {
       if (h > 0) setNaturalHeight(h);
     }
     recalc();
-  }, [recalc]);
+    postTourState();
+  }, [recalc, postTourState]);
 
   useEffect(() => {
     recalc();
@@ -42,6 +54,25 @@ export default function PrototypePreview() {
     ro.observe(outer);
     return () => ro.disconnect();
   }, [recalc]);
+
+  /* Tur otomatis di dalam prototipe tidak bisa tahu sendiri apakah iframe-nya
+     sedang terlihat — document.hidden hanya bicara soal tab, bukan posisi frame
+     di halaman ini. Tanpa kabar dari sini turnya jalan terus sambil tergulir
+     jauh di luar layar, lalu menyambut pengunjung di layar acak di tengah alur
+     alih-alih dari awal. Prototipe tetap jalan normal kalau pesan ini tak ada. */
+  useEffect(() => {
+    const outer = outerRef.current;
+    if (!outer) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        visibleRef.current = entry.isIntersecting;
+        postTourState();
+      },
+      { threshold: 0.35 },
+    );
+    io.observe(outer);
+    return () => io.disconnect();
+  }, [postTourState]);
 
   return (
     <section
