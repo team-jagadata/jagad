@@ -11,7 +11,7 @@ export default function Footer() {
             </span>
             <p className="mt-3 text-sm text-ink-600">
               Asisten pelaporan penipuan bertenaga AI. Dibuat oleh tim
-              NiceShield, Universitas Borneo Tarakan.
+              NiceShield
             </p>
           </div>
 
